@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:400,600|Open+Sans:400,600,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+    <title>Logistics XPRESS - Roterização</title>
+
+    <style>
+        /* Estilos personalizados */
+        .badge-criada { background-color: #6c757d; color: white; }
+        .badge-em-andamento { background-color: #17a2b8; color: white; }
+        .badge-finalizada { background-color: #28a745; color: white; }
+        .badge-pendente { background-color: #ffc107; color: #212529; }
+        .badge-em-entrega { background-color: #fd7e14; color: white; }
+        .badge-entregue { background-color: #28a745; color: white; }
+        .badge-falha { background-color: #dc3545; color: white; }
+        
+        .card-dashboard {
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .card-dashboard:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .progress-xs {
+            height: 7px;
+        }
+        
+        .table-actions {
+            white-space: nowrap;
+            width: 1%;
+        }
+        
+        #map {
+            height: 400px;
+            width: 100%;
+            background-color: #f8f9fa;
+        }
+        
+        .route-info {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+        
+        #loading-spinner {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+        }
+        
+        #feedback-message {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+        }
+        
+        /* Estilos do padrão Logistics XPRESS */
+        .brand-link, .brand-link:hover {
+            color: #fa5c00;
+        }
+        .nav-sidebar > .nav-item > .nav-link.active {
+            background-color: #fa4700;
+            color: #f8f9fa;
+        }
+        .nav-sidebar .menu-open > .nav-link {
+            color: #fa4700;
+        }
+        .nav-sidebar .nav-treeview .nav-item .nav-link.active {
+            color: #fa4700;
+        }
+        .btn-primary {
+            background-color: #fa4700;
+            border-color: #e04200;
+        }
+        .btn-primary:hover {
+            background-color: #e04200;
+            border-color: #c63800;
+        }
+        .page-item.active .page-link {
+            background-color: #fa4700;
+            border-color: #fa4700;
+        }
+        .user-header.bg-primary {
+            background-color: #fa4700 !important;
+        }
+    </style>
+</head>
+
+<body class="hold-transition sidebar-mini layout-fixed">
+    <div class="wrapper">
+        <!-- Navbar superior -->
+        <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+            <!-- Botão para toggle do menu lateral em mobile -->
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link sidebar-toggle" data-widget="pushmenu" href="#" role="button">
+                        <i class="fas fa-bars"></i>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Itens à direita -->
+            <ul class="navbar-nav ml-auto">
+                <!-- Menu do usuário -->
+                <li class="nav-item dropdown user-menu">
+                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                        <span class="d-none d-md-inline user-name" id="navbar-user-name">Nome do Usuário</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                        <!-- Header do menu do usuário -->
+                        <li class="user-header bg-primary">
+                            <p>
+                                <span id="dropdown-user-name">Nome do Usuário</span>
+                                <small id="dropdown-user-role">Cargo/Função</small>
+                            </p>
+                        </li>
+                        <!-- Menu Body -->
+                        <li class="user-body">
+                            <div class="row">
+                                <div class="col-4 text-center">
+                                    <a href="#">Perfil</a>
+                                </div>
+                                <div class="col-4 text-center">
+                                    <a href="#">Configurações</a>
+                                </div>
+                                <div class="col-4 text-center">
+                                    <a href="#">Ajuda</a>
+                                </div>
+                            </div>
+                        </li>
+                        <!-- Menu Footer -->
+                        <li class="user-footer">
+                            <a href="#" class="btn btn-default btn-flat">Perfil</a>
+                            <a href="#" class="btn btn-default btn-flat float-right" id="logout-btn">Sair</a>
+                        </li>
+                    </ul>
+                </li>
+                <!-- Controle de tela cheia (opcional) -->
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="fullscreen" href="#" role="button">
+                        <i class="fas fa-expand-arrows-alt"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <!-- Overlay para mobile quando o menu estiver aberto -->
+        <div class="sidebar-overlay"></div>
+
+        <!-- MENU LATERAL ATUALIZADO -->
+        <aside class="main-sidebar sidebar-dark-primary elevation-4">
+            <a href="/dashboard/gestao" class="brand-link">
+                <i class=""></i>
+                <span class="brand-text font-weight-bolder" style=" color: #fa5c00; text-transform: uppercase; " > <i class="	fas fa-shipping-fast" style="margin-left: 1rem; margin-right: 0.5rem; color: #fa4700;"></i>Logistics XPRESS</span>
+            </a>
+
+            <div class="sidebar">
+                <nav class="mt-2">
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                        <!-- Menu Principal -->
+                        
+                        <!-- Gestão Audit -->
+                        <li class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-inbox"></i>
+                                <p>
+                                   Gestão Audit
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/dashboard/gestao#tab-conferencias" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Conferência: LM Hub AT/TO</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/dashboard/gestao#tab-recebimentos" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Conferência Inbound</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        
+                        <!-- Transferência -->
+                        <li class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-exchange-alt"></i>
+                                <p>
+                                    Transferência
+                                    <i class="right fas fa-angle-left" "></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/dashboard/transferencia" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Gestão de Transferência</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/dashboard/hubs" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Gestão de Hubs</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        
+                        <!-- Estoque -->
+                        <li class="nav-item">
+                            <a href="/dashboard/estoque" class="nav-link">
+                                <i class="nav-icon fas fa-warehouse"></i>
+                                <p>Estoque</p>
+                            </a>
+                        </li>
+                        
+                        <!-- Pedidos -->
+                        <li class="nav-item">
+                            <a href="/dashboard/pedidos" class="nav-link">
+                                <i class="nav-icon fas fa-clipboard-list"></i>
+                                <p>Pedidos</p>
+                            </a>
+                        </li>
+                        
+                        <!-- Rotas -->
+                        <li class="nav-item has-treeview menu-open">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-route"></i>
+                                <p>
+                                    Roterização
+                                    <i class="right fas fa-angle-left" style="color: #fa4700;"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/dashboard/rota" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Gestão de Rotas</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        
+                       <li class="nav-item">
+                            <a href="/dashboard/transporte" class="nav-link">
+                                <i class="nav-icon fas fa-truck"></i>
+                                <p>Transportes</p>
+                            </a>
+                        </li>
+                        
+                        <!-- Relatórios -->
+                        <li class="nav-item">
+                            <a href="/dashboard/relatorios" class="nav-link">
+                                <i class="nav-icon fas fa-chart-bar"></i>
+                                <p>Relatórios</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/dashboard/excecoes" class="nav-link">
+                                <i class="nav-icon fas fa-exclamation-triangle"></i>
+                                <p>Exceções</p>
+                            </a>
+                        </li>
+                        <li class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-project-diagram"></i>
+                                <p>
+                                   Diagrama
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/dashboard/diagrama" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Diagrama</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/dashboard/diagrama-bpmn" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Diagrama BPMN</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- CONTEÚDO PRINCIPAL -->
+        <div class="content-wrapper">
+            <section class="content-header">
+                <div class="container-fluid">
+                    <div class="row mb-2">
+                        <div class="col-sm-6">
+                            <h1>Roterização - Gestão de Rotas</h1>
+                        </div>
+                        <div class="col-sm-6">
+                            <ol class="breadcrumb float-sm-right">
+                                <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+                                <li class="breadcrumb-item active">Roterização</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="content">
+                <div class="container-fluid">
+                    <!-- Feedback Message -->
+                    <div id="feedback-message" class="alert alert-dismissible fade show" role="alert">
+                        <span id="feedback-text"></span>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <!-- Loading Spinner -->
+                    <div id="loading-spinner" class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Carregando...</span>
+                    </div>
+
+                    <!-- Cards Resumo -->
+                    <div class="row">
+                        <div class="col-lg-3 col-6">
+                            <div class="small-box bg-info card-dashboard" onclick="filtrarPorStatus('CRIADA')">
+                                <div class="inner">
+                                    <h3 id="total-criadas">0</h3>
+                                    <p>Rotas Criadas</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-plus-circle"></i>
+                                </div>
+                                <a href="#" class="small-box-footer">Ver todas <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-3 col-6">
+                            <div class="small-box bg-warning card-dashboard" onclick="filtrarPorStatus('EM_ANDAMENTO')">
+                                <div class="inner">
+                                    <h3 id="total-andamento">0</h3>
+                                    <p>Em Andamento</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-sync-alt"></i>
+                                </div>
+                                <a href="#" class="small-box-footer">Ver todas <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-3 col-6">
+                            <div class="small-box bg-success card-dashboard" onclick="filtrarPorStatus('FINALIZADA')">
+                                <div class="inner">
+                                    <h3 id="total-finalizadas">0</h3>
+                                    <p>Finalizadas</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <a href="#" class="small-box-footer">Ver todas <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-3 col-6">
+                            <div class="small-box bg-secondary card-dashboard" onclick="filtrarPorStatus('TODAS')">
+                                <div class="inner">
+                                    <h3 id="total-paradas">0</h3>
+                                    <p>Paradas Hoje</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                <a href="#" class="small-box-footer">Ver todas <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filtros -->
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>ID da Rota</label>
+                                <input type="text" class="form-control" id="filtro-id" placeholder="RT2025080001">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Status</label>
+                                <select class="form-control" id="filtro-status">
+                                    <option value="">Todos</option>
+                                    <option value="CRIADA">Criada</option>
+                                    <option value="EM_ANDAMENTO">Em Andamento</option>
+                                    <option value="FINALIZADA">Finalizada</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Motorista</label>
+                                <select class="form-control" id="filtro-motorista">
+                                    <option value="">Todos</option>
+                                    <!-- Preenchido por JS -->
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Data</label>
+                                <input type="date" class="form-control" id="filtro-data">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabela Principal -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Lista de Rotas</h3>
+                                    <div class="card-tools">
+                                        <button class="btn btn-primary" onclick="abrirModalNovaRota()">
+                                            <i class="fas fa-plus"></i> Nova Rota
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body table-responsive p-0">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>ID Rota</th>
+                                                <th>Cluster</th>
+                                                <th>Motorista</th>
+                                                <th>Paradas</th>
+                                                <th>Distância (km)</th>
+                                                <th>Status</th>
+                                                <th>Criação</th>
+                                                <th class="table-actions">Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tabela-rotas">
+                                            <!-- Preenchido por JS -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!-- Paginação será adicionada dinamicamente pelo JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- MODAL DETALHES ROTA -->
+        <div class="modal fade" id="modal-detalhes" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary">
+                        <h5 class="modal-title">Detalhes da Rota</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="route-info">
+                                    <h5><i class="fas fa-info-circle"></i> Informações da Rota</h5>
+                                    <div class="form-group">
+                                        <label>ID Rota</label>
+                                        <input type="text" class="form-control" id="detalhe-id" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Cluster</label>
+                                        <input type="text" class="form-control" id="detalhe-cluster" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Motorista</label>
+                                        <input type="text" class="form-control" id="detalhe-motorista" readonly>
+                                    </div>
+                                </div>
+                                
+                                <div class="route-info">
+                                    <h5><i class="fas fa-chart-bar"></i> Métricas</h5>
+                                    <div class="form-group">
+                                        <label>Total de Paradas</label>
+                                        <input type="text" class="form-control" id="detalhe-total-paradas" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Distância Total</label>
+                                        <input type="text" class="form-control" id="detalhe-distancia" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Status</label>
+                                        <input type="text" class="form-control" id="detalhe-status" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-8">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Mapa da Rota</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="map"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="card mt-3">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Paradas da Rota</h3>
+                                        <div class="card-tools">
+                                            <button class="btn btn-sm btn-primary" onclick="adicionarParada()">
+                                                <i class="fas fa-plus"></i> Adicionar Parada
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Ordem</th>
+                                                    <th>Pedido</th>
+                                                    <th>Gaiola</th>
+                                                    <th>Status</th>
+                                                    <th>Ações</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="detalhe-paradas">
+                                                <!-- Preenchido por JS -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                        <button type="button" class="btn btn-success" id="btn-iniciar-rota" style="display:none;">
+                            <i class="fas fa-play"></i> Iniciar Rota
+                        </button>
+                        <button type="button" class="btn btn-danger" id="btn-finalizar-rota" style="display:none;">
+                            <i class="fas fa-flag-checkered"></i> Finalizar Rota
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL NOVA ROTA -->
+        <div class="modal fade" id="modal-nova-rota" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+            <div class="modal-header bg-success">
+                <h5 class="modal-title">Criar Nova Rota</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                    <label>Cluster *</label>
+                    <select class="form-control" id="nova-rota-cluster" required>
+                        <option value="">Selecione um cluster</option>
+                        <option value="NORTE">NORTE</option>
+                        <option value="SUL">SUL</option>
+                        <option value="LESTE">LESTE</option>
+                        <option value="OESTE">OESTE</option>
+                        <option value="CENTRO">CENTRO</option>
+                    </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                    <label>Motorista *</label>
+                    <select class="form-control" id="nova-rota-motorista" required>
+                        <option value="">Selecione um motorista</option>
+                    </select>
+                    </div>
+                </div>
+                </div>
+                
+                <div class="form-group">
+                <label>Pedidos Disponíveis</label>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="Buscar pedidos..." id="buscar-pedidos">
+                    <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button" onclick="filtrarPedidos()">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    </div>
+                </div>
+                
+                <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                    <table class="table table-sm table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                        <th width="5%">
+                            <input type="checkbox" id="selecionar-todos" onchange="selecionarTodosPedidos()">
+                        </th>
+                        <th width="15%">Código</th>
+                        <th width="25%">Cliente</th>
+                        <th width="25%">Produto</th>
+                        <th width="30%">Endereço</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-pedidos-disponiveis">
+                    </tbody>
+                    </table>
+                </div>
+                <small class="form-text text-muted" id="contador-pedidos">
+                    0 pedido(s) selecionado(s)
+                </small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="criarNovaRota()" id="btn-criar-rota" disabled>
+                <i class="fas fa-route"></i> Criar Rota
+                </button>
+            </div>
+            </div>
+        </div>
+        </div>
+
+        <!-- MODAL ADICIONAR PARADA -->
+        <div class="modal fade" id="modal-adicionar-parada" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary">
+                        <h5 class="modal-title">Adicionar Parada à Rota</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Pedido</label>
+                            <select class="form-control" id="parada-pedido">
+                                <!-- Preenchido por JS -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Gaiola</label>
+                            <input type="text" class="form-control" id="parada-gaiola" placeholder="Código da gaiola">
+                        </div>
+                        <div class="form-group">
+                            <label>Ordem de Entrega</label>
+                            <input type="number" class="form-control" id="parada-ordem" placeholder="Ordem na rota">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" onclick="salvarParada()">Adicionar Parada</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+    <!-- Inclua a API do Google Maps -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=SUA_CHAVE_API&libraries=places"></script>
+    <script src="/scripts/dashboard/rotas.js"></script>
+
+    <script>
+        // Inicialização básica quando o documento estiver pronto
+        $(document).ready(function() {
+            $('[data-widget="treeview"]').Treeview('init');
+        });
+    </script>
+</body>
+</html>

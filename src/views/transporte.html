@@ -1,0 +1,1159 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:400,600|Open+Sans:400,600,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+    <title>Logistica - Gestão de Transportes</title>
+
+    <style>
+        /* Estilos personalizados */
+        .badge-criado { background-color: #6c757d; color: white; }
+        .badge-em-transporte { background-color: #17a2b8; color: white; }
+        .badge-recebido { background-color: #28a745; color: white; }
+        .badge-cancelado { background-color: #dc3545; color: white; }
+        .badge-conferencia { background-color: #6f42c1; color: white; }
+        
+        .card-dashboard {
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .card-dashboard:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .table-actions {
+            white-space: nowrap;
+            width: 1%;
+        }
+        
+        .info-transporte {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .action-buttons .btn {
+            margin-right: 5px;
+        }
+        
+        .action-buttons .btn:last-child {
+            margin-right: 0;
+        }
+        
+        #loading-spinner {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+        }
+        
+        #feedback-message {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+        }
+        
+        .conferencia-badge {
+            font-size: 0.85rem;
+            padding: 0.35em 0.65em;
+        }
+        
+        .conferencia-info {
+            background-color: #f8f9fa;
+            border-left: 4px solid #6f42c1;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        
+        .rota-info {
+            background-color: #f8f9fa;
+            border-left: 4px solid #28a745;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        
+        /* Ajustes para seguir a referência */
+        .brand-text {
+            color: #fa5c00 !important;
+            text-transform: uppercase;
+        }
+        
+        .nav-link.active {
+            background-color: #fa4700 !important;
+            color: #f8f9fa !important;
+        }
+        
+        .nav-link.active i {
+            color: #f8f9fa !important;
+        }
+        
+        .nav-item.has-treeview.menu-open > .nav-link {
+            color: #f8f9fa;
+            background-color: #fa4700;
+        }
+        
+        .nav-item.has-treeview.menu-open > .nav-link i.right {
+            color: #f8f9fa !important;
+        }
+        
+        .nav-item > .nav-link:hover {
+            color: #fa4700;
+        }
+        
+        .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active, 
+        .sidebar-light-primary .nav-sidebar > .nav-item > .nav-link.active {
+            background-color: #fa4700;
+            color: #f8f9fa;
+        }
+        
+        .btn-primary {
+            background-color: #fa4700;
+            border-color: #e04200;
+        }
+        
+        .btn-primary:hover {
+            background-color: #e04200;
+            border-color: #c63900;
+        }
+        
+        .small-box {
+            color: white !important;
+        }
+        
+        .small-box .icon > i {
+            color: rgba(255,255,255,0.3) !important;
+        }
+        
+        .bg-primary {
+            background-color: #fa4700 !important;
+        }
+        
+        .page-item.active .page-link {
+            background-color: #fa4700;
+            border-color: #e04200;
+        }
+        
+        .dropdown-menu > li > a:hover {
+            background-color: #fa4700;
+            color: #f8f9fa;
+        }
+
+        /* Estilos para a tabela de pedidos na rota */
+        .pedido-rota-table {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .pedido-rota-table table {
+            margin-bottom: 0;
+        }
+        
+        .pedido-rota-table thead th {
+            position: sticky;
+            top: 0;
+            background: #f8f9fa;
+            z-index: 10;
+        }
+    </style>
+</head>
+
+<body class="hold-transition sidebar-mini layout-fixed">
+    <div class="wrapper">
+        <!-- Navbar superior -->
+        <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+            <!-- Botão para toggle do menu lateral em mobile -->
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link sidebar-toggle" data-widget="pushmenu" href="#" role="button">
+                        <i class="fas fa-bars"></i>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Itens à direita -->
+            <ul class="navbar-nav ml-auto">
+                <!-- Menu do usuário -->
+                <li class="nav-item dropdown user-menu">
+                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                        <span class="d-none d-md-inline user-name" id="navbar-user-name">Nome do Usuário</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                        <!-- Header do menu do usuário -->
+                        <li class="user-header bg-primary">
+                            <p>
+                                <span id="dropdown-user-name">Nome do Usuário</span>
+                                <small id="dropdown-user-role">Cargo/Função</small>
+                            </p>
+                        </li>
+                        <!-- Menu Body -->
+                        <li class="user-body">
+                            <div class="row">
+                                <div class="col-4 text-center">
+                                    <a href="#">Perfil</a>
+                                </div>
+                                <div class="col-4 text-center">
+                                    <a href="#">Configurações</a>
+                                </div>
+                                <div class="col-4 text-center">
+                                    <a href="#">Ajuda</a>
+                                </div>
+                            </div>
+                        </li>
+                        <!-- Menu Footer -->
+                        <li class="user-footer">
+                            <a href="#" class="btn btn-default btn-flat">Perfil</a>
+                            <a href="#" class="btn btn-default btn-flat float-right" id="logout-btn">Sair</a>
+                        </li>
+                    </ul>
+                </li>
+                <!-- Controle de tela cheia (opcional) -->
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="fullscreen" href="#" role="button">
+                        <i class="fas fa-expand-arrows-alt"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <!-- Overlay para mobile quando o menu estiver aberto -->
+        <div class="sidebar-overlay"></div>
+
+        <!-- MENU LATERAL -->
+        <aside class="main-sidebar sidebar-dark-primary elevation-4">
+            <a href="/dashboard/gestao" class="brand-link">
+                <i class=""></i>
+                <span class="brand-text font-weight-bolder" style=" color: #fa5c00; text-transform: uppercase; " > <i class="	fas fa-shipping-fast" style="margin-left: 1rem; margin-right: 0.5rem; color: #fa4700;"></i>Logistics XPRESS</span>
+            </a>
+
+            <div class="sidebar">
+                <nav class="mt-2">
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                        <!-- Menu Principal -->
+                        
+                        <!-- Gestão Audit -->
+                        <li class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-inbox"></i>
+                                <p>
+                                   Gestão Audit
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/dashboard/gestao#tab-conferencias" class="nav-link" data-toggle="tab">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Conferência: LM Hub AT/TO</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/dashboard/gestao#tab-recebimentos" class="nav-link" data-toggle="tab">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Conferência Inbound</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        
+                        <!-- Transferência -->
+                        <li class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-exchange-alt"></i>
+                                <p>
+                                    Transferência
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/dashboard/transferencia" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Gestão de Transferência</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/dashboard/hubs" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Gestão de Hubs</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        
+                        <!-- Estoque -->
+                        <li class="nav-item">
+                            <a href="/dashboard/estoque" class="nav-link">
+                                <i class="nav-icon fas fa-warehouse"></i>
+                                <p>Estoque</p>
+                            </a>
+                        </li>
+                        
+                        <!-- Pedidos -->
+                        <li class="nav-item">
+                            <a href="/dashboard/pedidos" class="nav-link">
+                                <i class="nav-icon fas fa-clipboard-list"></i>
+                                <p>Pedidos</p>
+                            </a>
+                        </li>
+                        
+                        <!-- Rotas -->
+                        <li class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-route"></i>
+                                <p>
+                                    Roterização
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/dashboard/rota" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Gestão de Rotas</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        
+                       <li class="nav-item">
+                            <a href="/dashboard/transporte" class="nav-link active">
+                                <i class="nav-icon fas fa-truck"></i>
+                                <p>Transportes</p>
+                            </a>
+                        </li>
+                        
+                        <!-- Relatórios -->
+                        <li class="nav-item">
+                            <a href="/dashboard/relatorios" class="nav-link">
+                                <i class="nav-icon fas fa-chart-bar"></i>
+                                <p>Relatórios</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/dashboard/excecoes" class="nav-link">
+                                <i class="nav-icon fas fa-exclamation-triangle"></i>
+                                <p>Exceções</p>
+                            </a>
+                        </li>
+                        <li class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-project-diagram"></i>
+                                <p>
+                                   Diagrama
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                     <a href="/dashboard/diagrama" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Diagrama</p>
+                                    </a>
+                                    <a href="/dashboard/diagrama-bpmn" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Diagrama BPMN</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- CONTEÚDO PRINCIPAL -->
+        <div class="content-wrapper">
+            <section class="content-header">
+                <div class="container-fluid">
+                    <div class="row mb-2">
+                        <div class="col-sm-6">
+                            <h1>Gestão de Transportes</h1>
+                        </div>
+                        <div class="col-sm-6">
+                            <ol class="breadcrumb float-sm-right">
+                                <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                                <li class="breadcrumb-item active">Transportes</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="content">
+                <div class="container-fluid">
+                    <!-- Feedback Message -->
+                    <div id="feedback-message" class="alert alert-dismissible fade show" role="alert">
+                        <span id="feedback-text"></span>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <!-- Loading Spinner -->
+                    <div id="loading-spinner" class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Carregando...</span>
+                    </div>
+
+                    <!-- Cards Resumo -->
+                    <div class="row">
+                        <div class="col-lg-3 col-6">
+                            <div class="small-box bg-secondary card-dashboard" onclick="filtrarPorStatus('CRIADO')">
+                                <div class="inner">
+                                    <h3 id="total-criados">0</h3>
+                                    <p>Criados</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-plus-circle"></i>
+                                </div>
+                                <a href="#" class="small-box-footer">Ver todos <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-3 col-6">
+                            <div class="small-box bg-info card-dashboard" onclick="filtrarPorStatus('EM_TRANSPORTE')">
+                                <div class="inner">
+                                    <h3 id="total-transporte">0</h3>
+                                    <p>Em Transporte</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-sync-alt"></i>
+                                </div>
+                                <a href="#" class="small-box-footer">Ver todos <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-3 col-6">
+                            <div class="small-box bg-success card-dashboard" onclick="filtrarPorStatus('RECEBIDO')">
+                                <div class="inner">
+                                    <h3 id="total-recebidos">0</h3>
+                                    <p>Recebidos</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <a href="#" class="small-box-footer">Ver todos <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-3 col-6">
+                            <div class="small-box bg-danger card-dashboard" onclick="filtrarPorStatus('CANCELADO')">
+                                <div class="inner">
+                                    <h3 id="total-cancelados">0</h3>
+                                    <p>Cancelados</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-times-circle"></i>
+                                </div>
+                                <a href="#" class="small-box-footer">Ver todos <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filtros -->
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Número do Transporte</label>
+                                <input type="text" class="form-control" id="filtro-numero" placeholder="TO20230001">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Tipo</label>
+                                <select class="form-control" id="filtro-tipo">
+                                    <option value="">Todos</option>
+                                    <option value="TO">TO - Transport Order</option>
+                                    <option value="LH">LH - Last Mile</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Direção</label>
+                                <select class="form-control" id="filtro-direcao">
+                                    <option value="">Todas</option>
+                                    <option value="INBOUND">INBOUND</option>
+                                    <option value="OUTBOUND">OUTBOUND</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Status</label>
+                                <select class="form-control" id="filtro-status">
+                                    <option value="">Todos</option>
+                                    <option value="CRIADO">Criado</option>
+                                    <option value="EM_TRANSPORTE">Em Transporte</option>
+                                    <option value="RECEBIDO">Recebido</option>
+                                    <option value="CANCELADO">Cancelado</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabela Principal -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Lista de Transportes</h3>
+                                    <div class="card-tools">
+                                        <button class="btn btn-primary" onclick="abrirModalNovoTransporte()">
+                                            <i class="fas fa-plus"></i> Novo Transporte
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body table-responsive p-0">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Nº Transporte</th>
+                                                <th>Tipo</th>
+                                                <th>Direção</th>
+                                                <th>Origem</th>
+                                                <th>Destino</th>
+                                                <th>Motorista</th>
+                                                <th>Conferência</th>
+                                                <th>Rota</th>
+                                                <th>Qtd</th>
+                                                <th>Peso (kg)</th>
+                                                <th>Status</th>
+                                                <th>Criação</th>
+                                                <th class="table-actions">Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tabela-transportes">
+                                            <!-- Preenchido por JS -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!-- Paginação será adicionada dinamicamente pelo JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- MODAL DETALHES TRANSPORTE -->
+        <div class="modal fade" id="modal-detalhes" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary">
+                        <h5 class="modal-title">Detalhes do Transporte</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="info-transporte">
+                                    <h5><i class="fas fa-info-circle"></i> Informações do Transporte</h5>
+                                    <div class="form-group">
+                                        <label>Número do Transporte</label>
+                                        <input type="text" class="form-control" id="detalhe-numero" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Tipo</label>
+                                        <input type="text" class="form-control" id="detalhe-tipo" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Direção</label>
+                                        <input type="text" class="form-control" id="detalhe-direcao" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Status</label>
+                                        <input type="text" class="form-control" id="detalhe-status" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-transporte">
+                                    <h5><i class="fas fa-route"></i> Rota</h5>
+                                    <div class="form-group">
+                                        <label>Hub Origem</label>
+                                        <input type="text" class="form-control" id="detalhe-origem" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Hub Destino</label>
+                                        <input type="text" class="form-control" id="detalhe-destino" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Motorista</label>
+                                        <input type="text" class="form-control" id="detalhe-motorista" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Veículo</label>
+                                        <input type="text" class="form-control" id="detalhe-veiculo" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Conferência Associada -->
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="conferencia-info">
+                                    <h5><i class="fas fa-clipboard-check"></i> Conferência Associada</h5>
+                                    <div id="info-conferencia">
+                                        <span class="badge badge-conferencia conferencia-badge" id="detalhe-conferencia-id">Nenhuma conferência associada</span>
+                                        <span class="badge badge-secondary conferencia-badge ml-2" id="detalhe-conferencia-status"></span>
+                                        <span class="ml-2" id="detalhe-conferencia-estacao"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Rota Associada -->
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="rota-info">
+                                    <h5><i class="fas fa-route"></i> Rota Associada</h5>
+                                    <div id="info-rota">
+                                        <span class="badge badge-success rota-badge" id="detalhe-rota-id">Nenhuma rota associada</span>
+                                        <span class="badge badge-secondary ml-2" id="detalhe-rota-status"></span>
+                                        <span class="ml-2" id="detalhe-rota-cluster"></span>
+                                        <span class="ml-2" id="detalhe-rota-paradas"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <div class="info-transporte">
+                                    <h5><i class="fas fa-boxes"></i> Cargas</h5>
+                                    <div class="form-group">
+                                        <label>Quantidade Total</label>
+                                        <input type="text" class="form-control" id="detalhe-quantidade" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Peso Total (kg)</label>
+                                        <input type="text" class="form-control" id="detalhe-peso" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Volumetria Total</label>
+                                        <input type="text" class="form-control" id="detalhe-volumetria" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-transporte">
+                                    <h5><i class="fas fa-calendar"></i> Datas</h5>
+                                    <div class="form-group">
+                                        <label>Data de Criação</label>
+                                        <input type="text" class="form-control" id="detalhe-criacao" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Data de Início</label>
+                                        <input type="text" class="form-control" id="detalhe-inicio" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Data de Conclusão</label>
+                                        <input type="text" class="form-control" id="detalhe-conclusao" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-transporte">
+                                    <h5><i class="fas fa-cogs"></i> Ações</h5>
+                                    <div class="form-group">
+                                        <button class="btn btn-block btn-info" id="btn-ver-pedidos">
+                                            <i class="fas fa-list"></i> Ver Pedidos
+                                        </button>
+                                    </div>
+                                    <div class="form-group">
+                                        <button class="btn btn-block btn-warning" id="btn-atribuir-motorista">
+                                            <i class="fas fa-user"></i> Atribuir Motorista
+                                        </button>
+                                    </div>
+                                    <div class="form-group">
+                                        <button class="btn btn-block btn-secondary" id="btn-atribuir-rota">
+                                            <i class="fas fa-route"></i> Atribuir Rota
+                                        </button>
+                                    </div>
+                                    <div class="form-group">
+                                        <button class="btn btn-block btn-success" id="btn-criar-rota">
+                                            <i class="fas fa-route"></i> Criar Rota
+                                        </button>
+                                    </div>
+                                    <div class="form-group">
+                                        <button class="btn btn-block btn-success" id="btn-iniciar-transporte">
+                                            <i class="fas fa-play"></i> Iniciar Transporte
+                                        </button>
+                                    </div>
+                                    <div class="form-group">
+                                        <button class="btn btn-block btn-primary" id="btn-finalizar-transporte">
+                                            <i class="fas fa-flag-checkered"></i> Finalizar Transporte
+                                        </button>
+                                    </div>
+                                    <div class="form-group">
+                                        <button class="btn btn-block btn-secondary" id="btn-associar-conferencia">
+                                            <i class="fas fa-link"></i> Associar Conferência
+                                        </button>
+                                    </div>
+                                    <div class="form-group">
+                                        <button class="btn btn-block btn-secondary" id="btn-associar-pedidos">
+                                            <i class="fas fa-box"></i> Associar Pedidos
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Lista de Pedidos -->
+                        <div class="row mt-3" id="painel-pedidos" style="display: none;">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Pedidos do Transporte</h3>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Pedido</th>
+                                                    <th>Cliente</th>
+                                                    <th>Produto</th>
+                                                    <th>Status</th>
+                                                    <th>Localização</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="detalhe-pedidos">
+                                                <!-- Preenchido por JS -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                        <button type="button" class="btn btn-primary" id="btn-editar">Editar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL NOVO TRANSPORTE -->
+        <div class="modal fade" id="modal-novo-transporte" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary">
+                        <h5 class="modal-title">Criar Novo Transporte</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="form-transporte">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Tipo de Transporte *</label>
+                                        <select class="form-control" id="transporte-tipo" required>
+                                            <option value="">Selecione...</option>
+                                            <option value="TO">TO - Transport Order</option>
+                                            <option value="LH">LH - Last Mile</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Direção *</label>
+                                        <select class="form-control" id="transporte-direcao" required>
+                                            <option value="">Selecione...</option>
+                                            <option value="INBOUND">INBOUND</option>
+                                            <option value="OUTBOUND">OUTBOUND</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label name="transporte-origem">Hub Origem *</label>
+                                        <input type=text class="form-control" id="transporte-origem" required>
+                                    
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Hub Destino *</label>
+                                        <input type=text class="form-control" id="transporte-destino" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Quantidade Total *</label>
+                                        <input type="number" class="form-control" id="transporte-quantidade" min="1" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Peso Total (kg) *</label>
+                                        <input type="number" class="form-control" id="transporte-peso" step="0.01" min="0.01" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Volumetria Total *</label>
+                                        <input type="number" class="form-control" id="transporte-volumetria" min="1" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Observações</label>
+                                <textarea class="form-control" id="transporte-observacoes" rows="3"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Conferências Disponíveis</label>
+                                <input type="number" class="form-control" id="transporte-conferencias">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" id="btn-criar-transporte">Criar Transporte</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL EDITAR TRANSPORTE -->
+        <div class="modal fade" id="modal-editar-transporte" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary">
+                        <h5 class="modal-title">Editar Transporte</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="form-editar-transporte">
+                            <input type="hidden" id="editar-id">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Tipo de Transporte *</label>
+                                        <select class="form-control" id="editar-tipo" required>
+                                            <option value="">Selecione...</option>
+                                            <option value="TO">TO - Transport Order</option>
+                                            <option value="LH">LH - Last Mile</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Direção *</label>
+                                        <select class="form-control" id="editar-direcao" required>
+                                            <option value="">Selecione...</option>
+                                            <option value="INBOUND">INBOUND</option>
+                                            <option value="OUTBOUND">OUTBOUND</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Hub Origem *</label>
+                                        <input type="text"class="form-control" id="editar-origem" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Hub Destino *</label>
+                                        <input type="text" class="form-control" id="editar-destino" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Motorista</label>
+                                        <input type="text" class="form-control" id="editar-motorista">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Veículo</label>
+                                        <input type="text" class="form-control" id="editar-veiculo" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Quantidade Total *</label>
+                                        <input type="number" class="form-control" id="editar-quantidade" min="1" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Peso Total (kg) *</label>
+                                        <input type="number" class="form-control" id="editar-peso" step="0.01" min="0.01" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Volumetria Total *</label>
+                                        <input type="number" class="form-control" id="editar-volumetria" min="1" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Observações</label>
+                                <textarea class="form-control" id="editar-observacoes" rows="3"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Conferência Associada</label>
+                                <div id="info-conferencia-editar" class="conferencia-info">
+                                    <span class="badge badge-conferencia conferencia-badge" id="editar-conferencia-id">Nenhuma conferência associada</span>
+                                    <span class="badge badge-secondary conferencia-badge ml-2" id="editar-conferencia-status"></span>
+                                    <span class="ml-2" id="editar-conferencia-estacao"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Rota Associada</label>
+                                <div id="info-rota-editar" class="rota-info">
+                                    <span class="badge badge-success rota-badge" id="editar-rota-id">Nenhuma rota associada</span>
+                                    <span class="badge badge-secondary ml-2" id="editar-rota-status-badge"></span>
+                                    <span class="ml-2" id="editar-rota-cluster"></span>
+                                    <span class="ml-2" id="editar-rota-paradas"></span>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" id="btn-salvar-edicao">Salvar Alterações</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL ATRIBUIR MOTORISTA -->
+        <div class="modal fade" id="modal-atribuir-motorista" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary">
+                        <h5 class="modal-title">Atribuir Motorista</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Selecione o Motorista</label>
+                            <input type="text" class="form-control" id="select-motorista">
+                        </div>
+                        <div class="form-group">
+                            <label>Veículo</label>
+                            <input type="text" class="form-control" id="input-veiculo" readonly>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" id="btn-confirmar-motorista">Confirmar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL ATRIBUIR ROTA -->
+        <div class="modal fade" id="modal-atribuir-rota" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary">
+                        <h5 class="modal-title">Atribuir Rota</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Selecione a Rota</label>
+                            <input type="number" class="form-control" id="select-rota">
+                                
+                        </div>
+                        <div id="info-rota-selecionada" style="display: none;">
+                            <h6>Informações da Rota Selecionada:</h6>
+                            <ul>
+                                <li>Cluster: <span id="info-rota-cluster"></span></li>
+                                <li>Motorista: <span id="info-rota-motorista"></span></li>
+                                <li>Status: <span id="info-rota-status"></span></li>
+                                <li>Número de Paradas: <span id="info-rota-paradas"></span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" id="btn-confirmar-rota">Confirmar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL ASSOCIAR CONFERÊNCIA -->
+        <div class="modal fade" id="modal-associar-conferencia" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary">
+                        <h5 class="modal-title">Associar Conferência</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="form-associar-conferencia">
+                            <div class="form-group">
+                                <label>Selecione a Conferência</label>
+                                <input type="number"class="form-control" id="select-conferencia">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" id="btn-confirmar-conferencia">Associar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL ASSOCIAR PEDIDOS -->
+        <div class="modal fade" id="modal-associar-pedidos" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary">
+                        <h5 class="modal-title">Associar Pedidos</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="filtro-pedidos" placeholder="Filtrar pedidos...">
+                            </div>
+                            <div class="col-md-4">
+                                <button class="btn btn-secondary btn-block" id="btn-limpar-filtro-pedidos">Limpar Filtro</button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th width="5%">
+                                            <input type="checkbox" id="selecionar-todos">
+                                        </th>
+                                        <th width="15%">Código</th>
+                                        <th width="20%">Cliente</th>
+                                        <th width="20%">Produto</th>
+                                        <th width="15%">Status</th>
+                                        <th width="25%">Localização</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabela-pedidos-disponiveis">
+                                    <!-- Preenchido por JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" id="btn-confirmar-pedidos">Associar Pedidos Selecionados</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL CRIAR ROTA -->
+        <div class="modal fade" id="modal-criar-rota" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary">
+                        <h5 class="modal-title">Criar Nova Rota</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="form-criar-rota">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Cluster *</label>
+                                        <input type="text" class="form-control" id="rota-cluster" required 
+                                               placeholder="Ex: Zona Norte, Centro, etc.">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Motorista *</label>
+                                        <input type="text" class="form-control" id="rota-motorista" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Pedidos do Transporte</label>
+                                <div class="pedido-rota-table">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th width="5%">
+                                                    <input type="checkbox" id="selecionar-todos-pedidos-rota">
+                                                </th>
+                                                <th width="15%">Código</th>
+                                                <th width="25%">Cliente</th>
+                                                <th width="20%">Produto</th>
+                                                <th width="15%">Status</th>
+                                                <th width="20%">Localização</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tabela-pedidos-rota">
+                                            <tr>
+                                                <td colspan="6" class="text-center">Carregando pedidos...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" id="btn-confirmar-criar-rota">Criar Rota</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="/scripts/dashboard/transporte.js"></script>
+</body>
+</html>

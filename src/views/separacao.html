@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css" integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:400,600|Open+Sans:400,600,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+    <title>Logistica - Separação</title>
+
+    <style>
+        .content-wrapper {
+            background-color: #f4f6f9;
+        }
+        
+        .card {
+            box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
+            margin-bottom: 1rem;
+        }
+        
+        .card-header {
+            border-bottom: 1px solid rgba(0,0,0,.125);
+            padding: 0.75rem 1.25rem;
+            position: relative;
+            background-color: rgba(0,0,0,.03);
+        }
+        
+        .table-responsive {
+            display: block;
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .badge-pendente {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        
+        .badge-separado {
+            background-color: #28a745;
+            color: white;
+        }
+    </style>
+</head>
+
+<body class="hold-transition sidebar-mini layout-fixed">
+    <div class="wrapper">
+
+        <!-- MENU LATERAL -->
+        <aside class="main-sidebar sidebar-dark-primary elevation-4">
+            <a href="/dashboard/gestao" class="brand-link">
+                <i class="fas fa-sun brand-image"></i>
+                <span class="brand-text font-weight-light">Logistica</span>
+            </a>
+
+            <div class="sidebar">
+                <nav class="mt-2">
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                        <li class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-calendar-check"></i>
+                                <p>
+                                    Gestão Audit
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/dashboard/gestao" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Conferência: LM Hub AT/TO</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/dashboard/coleta" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Coleta</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-address-card"></i>
+                                <p>
+                                    Saída
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/dashboard/transferencia" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Transferência</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/dashboard/separacao" class="nav-link active">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Separação</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/dashboard/rastreamento" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Rastreamento</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="/dashboard/entrada" class="nav-link">
+                                <i class="nav-icon fas fa-magic"></i>
+                                <p>Entrada</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="/dashboard/pedidos" class="nav-link">
+                                <i class="nav-icon fas fa-clock"></i>
+                                <p>Pedidos</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="/dashboard/transporte" class="nav-link">
+                                <i class="nav-icon fas fa-truck"></i>
+                                <p>Transporte Principal</p>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- CONTEÚDO PRINCIPAL -->
+        <div class="content-wrapper">
+            <section class="content-header">
+                <div class="container-fluid">
+                    <div class="row mb-2">
+                        <div class="col-sm-6">
+                            <h1>Separação</h1>
+                        </div>
+                        <div class="col-sm-6">
+                            <ol class="breadcrumb float-sm-right">
+                                <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                                <li class="breadcrumb-item active">Separação</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="content">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Lista de Separações</h3>
+                                    <div class="card-tools">
+                                        <button type="button" class="btn btn-primary btn-sm open-modal" data-modal="modal-separacao">
+                                            <i class="fas fa-plus"></i> Nova Separação
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-hover">
+                                            <tbody id="separacoesContainer">
+                                                <!-- Conteúdo via JS -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="card-footer clearfix">
+                                    <ul class="pagination pagination-sm m-0 float-right">
+                                        <li class="page-item"><a class="page-link" href="#">«</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">1</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">»</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- MODAL DE SEPARAÇÃO -->
+        <div class="modal fade" id="modal-separacao" tabindex="-1" role="dialog" aria-labelledby="modalSeparacaoLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalSeparacaoLabel">Nova Separação</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="separacaoForm">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="id_pedido">ID do Pedido</label>
+                                        <input type="number" class="form-control" id="id_pedido" name="id_pedido" required>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="id_conferencia">ID Conferência</label>
+                                        <input type="number" class="form-control" id="id_conferencia" name="id_conferencia">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="corredor_gaiola">Corredor/Gaiola</label>
+                                        <input type="text" class="form-control" id="corredor_gaiola" name="corredor_gaiola" required>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="status">Status</label>
+                                        <select class="form-control" id="status" name="status" required>
+                                            <option value="">Selecione...</option>
+                                            <option value="PENDENTE">Pendente</option>
+                                            <option value="SEPARADO">Separado</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="data_separacao">Data de Separação</label>
+                                        <input type="datetime-local" class="form-control" id="data_separacao" name="data_separacao">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Campo oculto para ID -->
+                            <input type="hidden" id="id" name="id">
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                        <button type="button" class="btn btn-primary" onclick="enviarDadosFormularioSeparacao()">Salvar Separação</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+    <script src="/scripts/easion.js"></script>
+    <script src="/scripts/dashboard/separacao.js"></script>
+
+    <script>
+        // Inicialização do AdminLTE
+        $(document).ready(function() {
+            $('[data-widget="treeview"]').Treeview('init');
+            
+            // Abre o modal ao clicar no botão
+            $('.open-modal').click(function() {
+                const modalId = $(this).data('modal');
+                $('#' + modalId).modal('show');
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Transferências - Logistics XPRESS</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+    <style>
+        .timeline-transferencia {
+            position: relative;
+            padding-left: 50px;
+        }
+        .timeline-step {
+            position: relative;
+            padding-bottom: 20px;
+        }
+        .timeline-step:before {
+            content: '';
+            position: absolute;
+            left: -30px;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #dee2e6;
+        }
+        .timeline-step.active:before {
+            background: #28a745;
+        }
+        .timeline-connector {
+            position: absolute;
+            left: -21px;
+            top: 20px;
+            bottom: 0;
+            width: 2px;
+            background: #dee2e6;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .brand-link, .brand-link:hover {
+            color: #fa5c00;
+        }
+        .nav-sidebar > .nav-item > .nav-link.active {
+            background-color: #fa4700;
+            color: #f8f9fa;
+        }
+        .nav-sidebar .menu-open > .nav-link {
+            color: #fa4700;
+        }
+        .nav-sidebar .nav-treeview .nav-item .nav-link.active {
+            background-color: rgba(250, 71, 0, 0.2);
+            color: #fa4700;
+        }
+        .btn-primary {
+            background-color: #fa4700;
+            border-color: #e04200;
+        }
+        .btn-primary:hover {
+            background-color: #e04200;
+            border-color: #c63800;
+        }
+        .page-item.active .page-link {
+            background-color: #fa4700;
+            border-color: #fa4700;
+        }
+    </style>
+</head>
+<body class="hold-transition sidebar-mini layout-fixed">
+    <div class="wrapper">
+        <!-- Navbar -->
+        <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link sidebar-toggle" data-widget="pushmenu" href="#" role="button">
+                        <i class="fas fa-bars"></i>
+                    </a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item dropdown user-menu">
+                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                        <span class="d-none d-md-inline user-name" id="navbar-user-name">Usuário</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                        <li class="user-header bg-primary" style="background-color: #fa4700 !important;">
+                            <p>
+                                <span id="dropdown-user-name">Usuário</span>
+                                <small id="dropdown-user-role">Operador</small>
+                            </p>
+                        </li>
+                        <li class="user-body">
+                            <div class="row">
+                                <div class="col-4 text-center"><a href="#">Perfil</a></div>
+                                <div class="col-4 text-center"><a href="#">Configurações</a></div>
+                                <div class="col-4 text-center"><a href="#">Ajuda</a></div>
+                            </div>
+                        </li>
+                        <li class="user-footer">
+                            <a href="#" class="btn btn-default btn-flat">Perfil</a>
+                            <a href="#" class="btn btn-default btn-flat float-right" id="logout-btn">Sair</a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="fullscreen" href="#" role="button">
+                        <i class="fas fa-expand-arrows-alt"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- MENU LATERAL ATUALIZADO -->
+        <aside class="main-sidebar sidebar-dark-primary elevation-4">
+            <a href="/dashboard/gestao" class="brand-link">
+                <i class=""></i>
+                <span class="brand-text font-weight-bolder" style=" color: #fa5c00; text-transform: uppercase; " > <i class="	fas fa-shipping-fast" style="margin-left: 1rem; margin-right: 0.5rem; color: #fa4700;"></i>Logistics XPRESS</span>
+            </a>
+
+            <div class="sidebar">
+                <nav class="mt-2">
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                        <!-- Menu Principal -->
+                        
+                        <!-- Gestão Audit -->
+                        <li class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-inbox"></i>
+                                <p>
+                                   Gestão Audit
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/dashboard/gestao" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Conferência: LM Hub AT/TO</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#tab-recebimentos" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Conferência Inbound</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        
+                        <!-- Transferência -->
+                        <li class="nav-item has-treeview menu-open">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-exchange-alt"></i>
+                                <p>
+                                    Transferência
+                                    <i class="right fas fa-angle-left" style="color: #fa4700;"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/dashboard/transferencia" class="nav-link active" style="background-color: #dee2e6; color: #1a1a1a;" >
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Gestão de Transferência</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/dashboard/hubs" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Gestão de Hubs</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        
+                        <!-- Estoque -->
+                        <li class="nav-item">
+                            <a href="/dashboard/estoque" class="nav-link">
+                                <i class="nav-icon fas fa-warehouse"></i>
+                                <p>Estoque</p>
+                            </a>
+                        </li>
+                        
+                        <!-- Pedidos -->
+                        <li class="nav-item">
+                            <a href="/dashboard/pedidos" class="nav-link">
+                                <i class="nav-icon fas fa-clipboard-list"></i>
+                                <p>Pedidos</p>
+                            </a>
+                        </li>
+                        
+                        <!-- Rotas -->
+                        <li class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-route"></i>
+                                <p>
+                                    Roterização
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/dashboard/rota" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Gestão de Rotas</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        
+                       <li class="nav-item">
+                            <a href="/dashboard/transporte" class="nav-link">
+                                <i class="nav-icon fas fa-truck"></i>
+                                <p>Transportes</p>
+                            </a>
+                        </li>
+                        
+                        <!-- Relatórios -->
+                        <li class="nav-item">
+                            <a href="/dashboard/relatorios" class="nav-link">
+                                <i class="nav-icon fas fa-chart-bar"></i>
+                                <p>Relatórios</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/dashboard/excecoes" class="nav-link">
+                                <i class="nav-icon fas fa-exclamation-triangle"></i>
+                                <p>Exceções</p>
+                            </a>
+                        </li>
+                        <li class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-project-diagram"></i>
+                                <p>
+                                   Diagrama
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                     <a href="/dashboard/diagrama" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Diagrama</p>
+                                    </a>
+                                    <a href="/dashboard/diagrama-bpmn" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Diagrama BPMN</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Content -->
+        <div class="content-wrapper">
+            <section class="content-header">
+                <div class="container-fluid">
+                    <div class="row mb-2">
+                        <div class="col-sm-6">
+                            <h1 id="page-title">Gestão de Transferências</h1>
+                        </div>
+                        <div class="col-sm-6">
+                            <ol class="breadcrumb float-sm-right">
+                                <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+                                <li class="breadcrumb-item active">Transferências</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="content">
+                <div class="container-fluid">
+                    <div id="lista-view">
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <button class="btn btn-primary" onclick="abrirModalTransferencia()">
+                                    <i class="fas fa-plus"></i> Nova Transferência
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Lista de Transferências</h3>
+                                        <div class="card-tools">
+                                            <div class="input-group input-group-sm" style="width: 150px;">
+                                                <input type="text" name="table_search" class="form-control float-right" placeholder="Buscar">
+                                                <div class="input-group-append">
+                                                    <button type="submit" class="btn btn-default">
+                                                        <i class="fas fa-search"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="transferenciasContainer">
+                                            <div class="text-center p-3">
+                                                <div class="loading"></div>
+                                                <div>Carregando transferências...</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="detalhe-view" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Informações da Transferência</h3>
+                                        <div class="card-tools">
+                                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                                <i class="fas fa-minus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <p><strong>Número TO:</strong> <span id="numero-to"></span></p>
+                                                <p><strong>Origem:</strong> <span id="hub-origem"></span></p>
+                                                <p><strong>Destino:</strong> <span id="hub-destino"></span></p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p><strong>Status:</strong> <span id="status-transferencia" class="badge"></span></p>
+                                                <p><strong>Motorista:</strong> <span id="motorista"></span></p>
+                                                <p><strong>Data Criação:</strong> <span id="data-criacao"></span></p>
+                                            </div>
+                                        </div>
+                                        <hr>
+                                        <h5>Linha do Tempo</h5>
+                                        <div class="timeline-transferencia" id="timeline-transferencia"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="card mt-3">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Pedidos</h3>
+                                        <div class="card-tools">
+                                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                                <i class="fas fa-minus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Código</th>
+                                                    <th>Cliente</th>
+                                                    <th>Produto</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tabela-pedidos"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Ações</h3>
+                                        <div class="card-tools">
+                                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                                <i class="fas fa-minus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <button class="btn btn-success btn-block mb-2" id="btn-concluir-transferencia">
+                                            <i class="fas fa-check-circle"></i> Concluir Transferência
+                                        </button>
+                                        <button class="btn btn-info btn-block mb-2" onclick="imprimirManifesto()">
+                                            <i class="fas fa-print"></i> Imprimir Manifesto
+                                        </button>
+                                        <button class="btn btn-secondary btn-block" onclick="voltarParaLista()">
+                                            <i class="fas fa-arrow-left"></i> Voltar
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="card mt-3">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Documentos</h3>
+                                        <div class="card-tools">
+                                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                                <i class="fas fa-minus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-group" id="lista-documentos">
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                Manifesto de Carga
+                                                <span class="badge badge-primary badge-pill">PDF</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Modal para Nova Transferência -->
+    <div class="modal fade" id="modal-transferencia">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nova Transferência</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-transferencia">
+                        <input type="hidden" id="transferencia-id">
+                        <div class="form-group">
+                            <label for="numero-to">Número TO</label>
+                            <input type="text" class="form-control" id="numero-to-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="origem-hub">Hub de Origem</label>
+                            <select class="form-control" id="origem-hub" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="destino-hub">Hub de Destino</label>
+                            <select class="form-control" id="destino-hub" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="motorista">Motorista</label>
+                            <select class="form-control" id="motorista-select"></select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btn-salvar-transferencia">
+                        <span class="btn-text">Salvar</span>
+                        <span class="loading" style="display: none;"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+    <script src="/scripts/dashboard/transferencia.js"></script>
+</body>
+</html>

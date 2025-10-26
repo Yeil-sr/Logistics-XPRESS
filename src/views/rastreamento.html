@@ -1,0 +1,956 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:400,600|Open+Sans:400,600,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <title>Logistica - Rastreamento</title>
+
+    <style>
+        /* Estilos de status */
+        .badge-no-hub { background-color: #6c757d; color: white; }
+        .badge-em-rota { background-color: #17a2b8; color: white; }
+        .badge-entregue { background-color: #28a745; color: white; }
+        .badge-excecao { background-color: #dc3545; color: white; }
+        
+        /* Estilos de rota */
+        .badge-criada { background-color: #6c757d; color: white; }
+        .badge-em-andamento { background-color: #fd7e14; color: white; }
+        .badge-finalizada { background-color: #28a745; color: white; }
+        
+        /* Estilos de parada */
+        .badge-pendente { background-color: #6c757d; color: white; }
+        .badge-em-entrega { background-color: #17a2b8; color: white; }
+        .badge-entregue { background-color: #28a745; color: white; }
+        .badge-falha { background-color: #dc3545; color: white; }
+        
+        /* Mapa */
+        #mapaRota { height: 400px; width: 100%; }
+        
+        /* Timeline */
+        .timeline { position: relative; padding-left: 50px; }
+        .timeline-step { position: relative; padding-bottom: 20px; }
+        .timeline-step:before {
+            content: '';
+            position: absolute;
+            left: -30px;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #dee2e6;
+        }
+        .timeline-step.active:before { background: #28a745; }
+        .timeline-step.failed:before { background: #dc3545; }
+        .timeline-connector {
+            position: absolute;
+            left: -21px;
+            top: 20px;
+            bottom: 0;
+            width: 2px;
+            background: #dee2e6;
+        }
+        
+        /* Cards de parada */
+        .parada-card { transition: all 0.3s; }
+        .parada-card:hover { transform: translateY(-3px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .parada-pendente { border-left: 4px solid #6c757d; }
+        .parada-em-entrega { border-left: 4px solid #17a2b8; }
+        .parada-entregue { border-left: 4px solid #28a745; }
+        .parada-falha { border-left: 4px solid #dc3545; }
+        
+        /* Loader */
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body class="hold-transition sidebar-mini layout-fixed">
+    <div class="wrapper">
+        <!-- MENU LATERAL -->
+        <aside class="main-sidebar sidebar-dark-primary elevation-4">
+            <a href="/dashboard/gestao" class="brand-link">
+                <i class="fas fa-sun brand-image"></i>
+                <span class="brand-text font-weight-light">Logistica</span>
+            </a>
+
+            <div class="sidebar">
+                <nav class="mt-2">
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                        <li class="nav-item has-treeview menu-open">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-calendar-check"></i>
+                                <p>
+                                    Gestão Audit
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/dashboard/gestao" class="nav-link">
+                                        <i class="far fa-circle"></i>
+                                        <p>Conferência: LM Hub AT/TO</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/dashboard/coleta" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Coleta</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-address-card"></i>
+                                <p>
+                                    Saída
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/dashboard/transferencia" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Transferência</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/dashboard/separacao" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Separação</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/dashboard/rastreamento" class="nav-link active">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Rastreamento</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="/dashboard/entrada" class="nav-link">
+                                <i class="nav-icon fas fa-magic"></i>
+                                <p>Entrada</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="/dashboard/pedidos" class="nav-link">
+                                <i class="nav-icon fas fa-clock"></i>
+                                <p>Pedidos</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="/dashboard/transporte" class="nav-link">
+                                <i class="nav-icon fas fa-truck"></i>
+                                <p>Transporte Principal</p>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- CONTEÚDO PRINCIPAL -->
+        <div class="content-wrapper">
+            <section class="content-header">
+                <div class="container-fluid">
+                    <div class="row mb-2">
+                        <div class="col-sm-6">
+                            <h1>Rastreamento</h1>
+                        </div>
+                        <div class="col-sm-6">
+                            <ol class="breadcrumb float-sm-right">
+                                <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                                <li class="breadcrumb-item active">Rastreamento</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="content">
+                <div class="container-fluid">
+                    <!-- Abas -->
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <ul class="nav nav-tabs" id="rastreamentoTabs" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="pedidos-tab" data-toggle="tab" href="#pedidos" role="tab">Pedidos</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="rotas-tab" data-toggle="tab" href="#rotas" role="tab">Rotas</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="paradas-tab" data-toggle="tab" href="#paradas" role="tab">Paradas</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="rastreamentos-tab" data-toggle="tab" href="#rastreamentos" role="tab">Rastreamentos</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Conteúdo das abas -->
+                    <div class="tab-content" id="rastreamentoTabsContent">
+                        <!-- Tab Pedidos -->
+                        <div class="tab-pane fade show active" id="pedidos" role="tabpanel">
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" id="filtroPedido" placeholder="ID do Pedido">
+                                </div>
+                                <div class="col-md-4">
+                                    <select class="form-control" id="filtroStatusPedido">
+                                        <option value="">Todos Status</option>
+                                        <option value="NO_HUB">No Hub</option>
+                                        <option value="EM_ROTA">Em Rota</option>
+                                        <option value="ENTREGUE">Entregue</option>
+                                        <option value="EXCECAO">Exceção</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <button class="btn btn-primary btn-block" onclick="filtrarPedidos()">Filtrar</button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="card">
+                                        <div class="card-body table-responsive p-0">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>ID Pedido</th>
+                                                        <th>Status</th>
+                                                        <th>Última Atualização</th>
+                                                        <th>Localização</th>
+                                                        <th>Rota</th>
+                                                        <th>Ações</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="tabelaPedidos">
+                                                    <tr><td colspan="6" class="text-center"><div class="loader"></div></td></tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab Rotas -->
+                        <div class="tab-pane fade" id="rotas" role="tabpanel">
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <select class="form-control" id="filtroStatusRota">
+                                        <option value="">Todos Status</option>
+                                        <option value="CRIADA">Criada</option>
+                                        <option value="EM_ANDAMENTO">Em Andamento</option>
+                                        <option value="FINALIZADA">Finalizada</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="date" class="form-control" id="filtroDataRota">
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="text" class="form-control" id="filtroCluster" placeholder="Cluster">
+                                </div>
+                                <div class="col-md-3">
+                                    <button class="btn btn-primary btn-block" onclick="filtrarRotas()">Filtrar</button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="card">
+                                        <div class="card-body table-responsive p-0">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>ID</th>
+                                                        <th>Motorista</th>
+                                                        <th>Cluster</th>
+                                                        <th>Paradas</th>
+                                                        <th>Distância</th>
+                                                        <th>Status</th>
+                                                        <th>Ações</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="tabelaRotas">
+                                                    <tr><td colspan="7" class="text-center"><div class="loader"></div></td></tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h3 class="card-title">Detalhes da Rota</h3>
+                                        </div>
+                                        <div class="card-body" id="detalhesRota">
+                                            <p class="text-muted">Selecione uma rota para visualizar os detalhes</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab Paradas -->
+                        <div class="tab-pane fade" id="paradas" role="tabpanel">
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <select class="form-control" id="filtroStatusParada">
+                                        <option value="">Todos Status</option>
+                                        <option value="PENDENTE">Pendente</option>
+                                        <option value="EM_ENTREGA">Em Entrega</option>
+                                        <option value="ENTREGUE">Entregue</option>
+                                        <option value="FALHA">Falha</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="number" class="form-control" id="filtroRotaParada" placeholder="ID Rota">
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="number" class="form-control" id="filtroPedidoParada" placeholder="ID Pedido">
+                                </div>
+                                <div class="col-md-3">
+                                    <button class="btn btn-primary btn-block" onclick="filtrarParadas()">Filtrar</button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h3 class="card-title">Lista de Paradas</h3>
+                                        </div>
+                                        <div class="card-body" id="listaParadas">
+                                            <div class="text-center"><div class="loader"></div></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab Rastreamentos -->
+                        <div class="tab-pane fade" id="rastreamentos" role="tabpanel">
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <input type="number" class="form-control" id="filtroPedidoRastreamento" placeholder="ID do Pedido">
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="date" class="form-control" id="filtroDataRastreamento">
+                                </div>
+                                <div class="col-md-4">
+                                    <button class="btn btn-primary btn-block" onclick="filtrarRastreamentos()">Filtrar</button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h3 class="card-title">Histórico de Rastreamento</h3>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="table-responsive">
+                                                <table class="table table-hover">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>ID</th>
+                                                            <th>Pedido</th>
+                                                            <th>Status</th>
+                                                            <th>Data/Hora</th>
+                                                            <th>Localização</th>
+                                                            <th>Observações</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="tabelaRastreamentos">
+                                                        <tr><td colspan="6" class="text-center"><div class="loader"></div></td></tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Modal Detalhes Rota -->
+        <div class="modal fade" id="modalRota" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Detalhes da Rota <span id="rotaId"></span></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div id="mapaRota"></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Informações</h3>
+                                    </div>
+                                    <div class="card-body" id="infoRota">
+                                        <!-- Preenchido por JS -->
+                                    </div>
+                                </div>
+                                <div class="card mt-3">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Paradas</h3>
+                                    </div>
+                                    <div class="card-body" id="paradasRota" style="max-height: 300px; overflow-y: auto;">
+                                        <!-- Preenchido por JS -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                        <button type="button" class="btn btn-primary" id="btnFinalizarRota" style="display:none;">Finalizar Rota</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Detalhes Parada -->
+        <div class="modal fade" id="modalParada" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Detalhes da Parada <span id="paradaId"></span></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Informações da Parada</h3>
+                                    </div>
+                                    <div class="card-body" id="infoParada">
+                                        <!-- Preenchido por JS -->
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Ações</h3>
+                                    </div>
+                                    <div class="card-body" id="acoesParada">
+                                        <!-- Preenchido por JS -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        // Mapeamento de status
+        const STATUS_PEDIDO = {
+            'NO_HUB': { class: 'badge-no-hub', text: 'No Hub' },
+            'EM_ROTA': { class: 'badge-em-rota', text: 'Em Rota' },
+            'ENTREGUE': { class: 'badge-entregue', text: 'Entregue' },
+            'EXCECAO': { class: 'badge-excecao', text: 'Exceção' }
+        };
+
+        const STATUS_ROTA = {
+            'CRIADA': { class: 'badge-criada', text: 'Criada' },
+            'EM_ANDAMENTO': { class: 'badge-em-andamento', text: 'Em Andamento' },
+            'FINALIZADA': { class: 'badge-finalizada', text: 'Finalizada' }
+        };
+
+        const STATUS_PARADA = {
+            'PENDENTE': { class: 'badge-pendente', text: 'Pendente' },
+            'EM_ENTREGA': { class: 'badge-em-entrega', text: 'Em Entrega' },
+            'ENTREGUE': { class: 'badge-entregue', text: 'Entregue' },
+            'FALHA': { class: 'badge-falha', text: 'Falha' }
+        };
+
+        // Variáveis globais
+        let mapa;
+        let rotaSelecionada = null;
+        let marcadores = [];
+
+        // Inicialização
+        $(document).ready(function() {
+            carregarPedidos();
+            carregarRotas();
+            carregarParadas();
+            carregarRastreamentos();
+            
+            // Inicializa mapa (vazio por enquanto)
+            if ($('#mapaRota').length) {
+                mapa = L.map('mapaRota').setView([-15.788, -47.879], 12);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(mapa);
+            }
+        });
+
+        // ========== FUNÇÕES PARA PEDIDOS ==========
+        async function carregarPedidos(filtros = {}) {
+            try {
+                const query = new URLSearchParams(filtros).toString();
+                const response = await fetch(`/pedidos/?${query}`);
+                const pedidos = await response.json();
+                renderizarPedidos(pedidos);
+            } catch (error) {
+                console.error('Erro ao carregar pedidos:', error);
+                $('#tabelaPedidos').html('<tr><td colspan="6" class="text-center text-danger">Erro ao carregar dados</td></tr>');
+            }
+        }
+
+        function renderizarPedidos(pedidos) {
+            const tbody = $('#tabelaPedidos');
+            tbody.empty();
+            
+            if (pedidos.length === 0) {
+                tbody.html('<tr><td colspan="6" class="text-center">Nenhum pedido encontrado</td></tr>');
+                return;
+            }
+            
+            pedidos.forEach(pedido => {
+                const status = STATUS_PEDIDO[pedido.status_atual] || { class: '', text: pedido.status_atual };
+                const dataFormatada = pedido.updatedAt ? new Date(pedido.updatedAt).toLocaleString() : '-';
+                
+                const tr = $(`
+                    <tr>
+                        <td>${pedido.id}</td>
+                        <td><span class="badge ${status.class}">${status.text}</span></td>
+                        <td>${dataFormatada}</td>
+                        <td>${pedido.localizacao || '-'}</td>
+                        <td>${pedido.rota_id ? `Rota #${pedido.rota_id}` : '-'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-info" onclick="verDetalhesPedido(${pedido.id})">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-primary" onclick="verRastreamentoPedido(${pedido.id})">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `);
+                
+                tbody.append(tr);
+            });
+        }
+
+        function filtrarPedidos() {
+            const filtros = {
+                id: $('#filtroPedido').val(),
+                status: $('#filtroStatusPedido').val()
+            };
+            carregarPedidos(filtros);
+        }
+
+        async function verDetalhesPedido(pedidoId) {
+            try {
+                const response = await fetch(`/pedido/${pedidoId}`);
+                const pedido = await response.json();
+                
+                // TODO: Implementar modal de detalhes do pedido
+                alert(`Detalhes do Pedido #${pedido.id}\nStatus: ${pedido.status_atual}\nLocalização: ${pedido.localizacao || 'Não informada'}`);
+            } catch (error) {
+                console.error('Erro ao carregar detalhes do pedido:', error);
+                alert('Erro ao carregar detalhes do pedido');
+            }
+        }
+
+        async function verRastreamentoPedido(pedidoId) {
+            try {
+                const response = await fetch(`/pedido/${pedidoId}/rastreamento`);
+                const rastreamentos = await response.json();
+                
+                // Mudar para a aba de rastreamentos e filtrar por este pedido
+                $('#rastreamentos-tab').tab('show');
+                $('#filtroPedidoRastreamento').val(pedidoId);
+                filtrarRastreamentos();
+            } catch (error) {
+                console.error('Erro ao carregar rastreamentos do pedido:', error);
+                alert('Erro ao carregar rastreamentos do pedido');
+            }
+        }
+
+        // ========== FUNÇÕES PARA ROTAS ==========
+        async function carregarRotas(filtros = {}) {
+            try {
+                const query = new URLSearchParams(filtros).toString();
+                const response = await fetch(`/rotas/?${query}`);
+                const rotas = await response.json();
+                renderizarRotas(rotas);
+            } catch (error) {
+                console.error('Erro ao carregar rotas:', error);
+                $('#tabelaRotas').html('<tr><td colspan="7" class="text-center text-danger">Erro ao carregar dados</td></tr>');
+            }
+        }
+
+        function renderizarRotas(rotas) {
+            const tbody = $('#tabelaRotas');
+            tbody.empty();
+            
+            if (rotas.length === 0) {
+                tbody.html('<tr><td colspan="7" class="text-center">Nenhuma rota encontrada</td></tr>');
+                return;
+            }
+            
+            rotas.forEach(rota => {
+                const status = STATUS_ROTA[rota.status_rota] || { class: '', text: rota.status_rota };
+                
+                const tr = $(`
+                    <tr onclick="verDetalhesRota(${rota.id})" style="cursor:pointer;">
+                        <td>${rota.id}</td>
+                        <td>${rota.Motorista ? rota.Motorista.nome : 'Não atribuído'}</td>
+                        <td>${rota.cluster || '-'}</td>
+                        <td>${rota.numero_paradas || 0}</td>
+                        <td>${rota.distancia_total_km ? `${rota.distancia_total_km} km` : '-'}</td>
+                        <td><span class="badge ${status.class}">${status.text}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); verDetalhesRota(${rota.id})">
+                                <i class="fas fa-map-marked-alt"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `);
+                
+                tbody.append(tr);
+            });
+        }
+
+        async function verDetalhesRota(rotaId) {
+            try {
+                const [rota, paradas] = await Promise.all([
+                    fetch(`/rota/${rotaId}`).then(r => r.json()),
+                    fetch(`/${rotaId}/paradas`).then(r => r.json())
+                ]);
+                
+                rotaSelecionada = rota;
+                $('#rotaId').text(`#${rota.id}`);
+                
+                // Atualiza informações da rota
+                const status = STATUS_ROTA[rota.status_rota] || { class: '', text: rota.status_rota };
+                $('#infoRota').html(`
+                    <p><strong>Motorista:</strong> ${rota.Motorista ? rota.Motorista.nome : 'Não atribuído'}</p>
+                    <p><strong>Status:</strong> <span class="badge ${status.class}">${status.text}</span></p>
+                    <p><strong>Cluster:</strong> ${rota.cluster || '-'}</p>
+                    <p><strong>Paradas:</strong> ${rota.numero_paradas || 0}</p>
+                    <p><strong>Distância:</strong> ${rota.distancia_total_km || '0'} km</p>
+                `);
+                
+                // Renderiza paradas
+                const paradasHtml = paradas.map(parada => {
+                    const status = STATUS_PARADA[parada.status_parada] || { class: '', text: parada.status_parada };
+                    return `
+                        <div class="card mb-2 parada-card">
+                            <div class="card-body">
+                                <h5 class="card-title">Parada #${parada.ordem_entrega}</h5>
+                                <p class="card-text">
+                                    <strong>Pedido:</strong> ${parada.id_pedido}<br>
+                                    <strong>Status:</strong> <span class="badge ${status.class}">${status.text}</span><br>
+                                    <strong>Gaiola:</strong> ${parada.gaiola_codigo || '-'}
+                                </p>
+                                <button class="btn btn-sm btn-info" onclick="verDetalhesParada(${parada.id})">
+                                    <i class="fas fa-eye"></i> Detalhes
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                $('#paradasRota').html(paradasHtml || '<p class="text-muted">Nenhuma parada registrada</p>');
+                
+                // Configura botão de finalizar
+                $('#btnFinalizarRota').toggle(rota.status_rota === 'EM_ANDAMENTO');
+                $('#btnFinalizarRota').off('click').on('click', () => finalizarRota(rota.id));
+                
+                // Renderizar mapa com as paradas
+                renderizarMapaRota(rota, paradas);
+                
+                $('#modalRota').modal('show');
+            } catch (error) {
+                console.error('Erro ao carregar detalhes da rota:', error);
+                alert('Erro ao carregar detalhes da rota');
+            }
+        }
+
+        function renderizarMapaRota(rota, paradas) {
+            // Limpar marcadores existentes
+            marcadores.forEach(marker => mapa.removeLayer(marker));
+            marcadores = [];
+            
+            // Adicionar marcadores para cada parada
+            paradas.forEach(parada => {
+                // Simular coordenadas (em um sistema real, teríamos lat/long)
+                const lat = -15.78 + (Math.random() * 0.1);
+                const lng = -47.88 + (Math.random() * 0.1);
+                
+                const status = STATUS_PARADA[parada.status_parada] || { class: '', text: parada.status_parada };
+                const marker = L.marker([lat, lng]).addTo(mapa)
+                    .bindPopup(`
+                        <b>Parada #${parada.ordem_entrega}</b><br>
+                        Pedido: ${parada.id_pedido}<br>
+                        Status: ${status.text}<br>
+                        Gaiola: ${parada.gaiola_codigo || '-'}
+                    `);
+                
+                marcadores.push(marker);
+            });
+            
+            // Ajustar a visualização do mapa para mostrar todos os marcadores
+            if (marcadores.length > 0) {
+                const group = new L.featureGroup(marcadores);
+                mapa.fitBounds(group.getBounds().pad(0.1));
+            }
+        }
+
+        async function finalizarRota(rotaId) {
+            if (!confirm('Deseja finalizar esta rota? Todos os pedidos serão marcados como entregues.')) return;
+            
+            try {
+                const response = await fetch(`/${rotaId}/finalizar`, { method: 'POST' });
+                if (!response.ok) throw new Error('Erro ao finalizar rota');
+                
+                alert('Rota finalizada com sucesso!');
+                $('#modalRota').modal('hide');
+                carregarRotas();
+                carregarPedidos();
+            } catch (error) {
+                console.error('Erro ao finalizar rota:', error);
+                alert('Erro ao finalizar rota');
+            }
+        }
+
+        function filtrarRotas() {
+            const filtros = {
+                status: $('#filtroStatusRota').val(),
+                data: $('#filtroDataRota').val(),
+                cluster: $('#filtroCluster').val()
+            };
+            carregarRotas(filtros);
+        }
+
+        // ========== FUNÇÕES PARA PARADAS ==========
+        async function carregarParadas(filtros = {}) {
+            try {
+                const query = new URLSearchParams(filtros).toString();
+                const response = await fetch(`/paradas/?${query}`);
+                const paradas = await response.json();
+                renderizarParadas(paradas);
+            } catch (error) {
+                console.error('Erro ao carregar paradas:', error);
+                $('#listaParadas').html('<div class="alert alert-danger">Erro ao carregar dados</div>');
+            }
+        }
+
+        function renderizarParadas(paradas) {
+            const container = $('#listaParadas');
+            container.empty();
+            
+            if (paradas.length === 0) {
+                container.html('<p class="text-muted">Nenhuma parada encontrada</p>');
+                return;
+            }
+            
+            paradas.forEach(parada => {
+                const status = STATUS_PARADA[parada.status_parada] || { class: '', text: parada.status_parada };
+                
+                const card = $(`
+                    <div class="card mb-3 parada-card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h5 class="card-title">Parada #${parada.ordem_entrega}</h5>
+                                    <p class="card-text">
+                                        <strong>Rota:</strong> ${parada.id_rota}<br>
+                                        <strong>Pedido:</strong> ${parada.id_pedido}<br>
+                                        <strong>Status:</strong> <span class="badge ${status.class}">${status.text}</span><br>
+                                        <strong>Gaiola:</strong> ${parada.gaiola_codigo || '-'}
+                                    </p>
+                                </div>
+                                <div class="col-md-4 text-right">
+                                    <button class="btn btn-sm btn-info mb-1" onclick="verDetalhesParada(${parada.id})">
+                                        <i class="fas fa-eye"></i> Detalhes
+                                    </button>
+                                    <br>
+                                    <button class="btn btn-sm btn-primary mb-1" onclick="atualizarStatusParada(${parada.id}, 'EM_ENTREGA')" ${parada.status_parada !== 'PENDENTE' ? 'disabled' : ''}>
+                                        <i class="fas fa-truck"></i> Iniciar
+                                    </button>
+                                    <br>
+                                    <button class="btn btn-sm btn-success mb-1" onclick="atualizarStatusParada(${parada.id}, 'ENTREGUE')" ${parada.status_parada !== 'EM_ENTREGA' ? 'disabled' : ''}>
+                                        <i class="fas fa-check"></i> Entregue
+                                    </button>
+                                    <br>
+                                    <button class="btn btn-sm btn-danger" onclick="atualizarStatusParada(${parada.id}, 'FALHA')" ${parada.status_parada === 'ENTREGUE' ? 'disabled' : ''}>
+                                        <i class="fas fa-times"></i> Falha
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `);
+                
+                container.append(card);
+            });
+        }
+
+        async function verDetalhesParada(paradaId) {
+            try {
+                const parada = await fetch(`/parada/${paradaId}`).then(r => r.json());
+                const status = STATUS_PARADA[parada.status_parada] || { class: '', text: parada.status_parada };
+                
+                $('#paradaId').text(`#${parada.id}`);
+                
+                $('#infoParada').html(`
+                    <p><strong>Rota:</strong> ${parada.id_rota}</p>
+                    <p><strong>Pedido:</strong> ${parada.id_pedido}</p>
+                    <p><strong>Ordem de Entrega:</strong> ${parada.ordem_entrega}</p>
+                    <p><strong>Status:</strong> <span class="badge ${status.class}">${status.text}</span></p>
+                    <p><strong>Gaiola:</strong> ${parada.gaiola_codigo || '-'}</p>
+                    <p><strong>Criada em:</strong> ${new Date(parada.createdAt).toLocaleString()}</p>
+                    <p><strong>Atualizada em:</strong> ${new Date(parada.updatedAt).toLocaleString()}</p>
+                `);
+                
+                $('#acoesParada').html(`
+                    <div class="text-center">
+                        <button class="btn btn-primary mb-2" onclick="atualizarStatusParada(${parada.id}, 'EM_ENTREGA')" ${parada.status_parada !== 'PENDENTE' ? 'disabled' : ''}>
+                            <i class="fas fa-truck"></i> Iniciar Entrega
+                        </button>
+                        <br>
+                        <button class="btn btn-success mb-2" onclick="atualizarStatusParada(${parada.id}, 'ENTREGUE')" ${parada.status_parada !== 'EM_ENTREGA' ? 'disabled' : ''}>
+                            <i class="fas fa-check"></i> Marcar como Entregue
+                        </button>
+                        <br>
+                        <button class="btn btn-danger" onclick="atualizarStatusParada(${parada.id}, 'FALHA')" ${parada.status_parada === 'ENTREGUE' ? 'disabled' : ''}>
+                            <i class="fas fa-times"></i> Registrar Falha
+                        </button>
+                    </div>
+                `);
+                
+                $('#modalParada').modal('show');
+            } catch (error) {
+                console.error('Erro ao carregar detalhes da parada:', error);
+                alert('Erro ao carregar detalhes da parada');
+            }
+        }
+
+        async function atualizarStatusParada(paradaId, novoStatus) {
+            try {
+                const response = await fetch(`/parada/${paradaId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status_parada: novoStatus })
+                });
+                
+                if (!response.ok) throw new Error('Erro ao atualizar parada');
+                
+                alert('Status da parada atualizado!');
+                $('#modalParada').modal('hide');
+                carregarParadas();
+                carregarRotas();
+            } catch (error) {
+                console.error('Erro ao atualizar parada:', error);
+                alert('Erro ao atualizar parada');
+            }
+        }
+
+        function filtrarParadas() {
+            const filtros = {
+                status: $('#filtroStatusParada').val(),
+                id_rota: $('#filtroRotaParada').val(),
+                id_pedido: $('#filtroPedidoParada').val()
+            };
+            carregarParadas(filtros);
+        }
+
+        // ========== FUNÇÕES PARA RASTREAMENTOS ==========
+        async function carregarRastreamentos(filtros = {}) {
+            try {
+                const query = new URLSearchParams(filtros).toString();
+                const response = await fetch(`/rastreamento/?${query}`);
+                const rastreamentos = await response.json();
+                renderizarRastreamentos(rastreamentos);
+            } catch (error) {
+                console.error('Erro ao carregar rastreamentos:', error);
+                $('#tabelaRastreamentos').html('<tr><td colspan="6" class="text-center text-danger">Erro ao carregar dados</td></tr>');
+            }
+        }
+
+        function renderizarRastreamentos(rastreamentos) {
+            const tbody = $('#tabelaRastreamentos');
+            tbody.empty();
+            
+            if (rastreamentos.length === 0) {
+                tbody.html('<tr><td colspan="6" class="text-center">Nenhum rastreamento encontrado</td></tr>');
+                return;
+            }
+            
+            rastreamentos.forEach(rastreamento => {
+                const status = STATUS_PEDIDO[rastreamento.status] || { class: '', text: rastreamento.status };
+                const dataFormatada = rastreamento.createdAt ? new Date(rastreamento.createdAt).toLocaleString() : '-';
+                
+                const tr = $(`
+                    <tr>
+                        <td>${rastreamento.id}</td>
+                        <td>${rastreamento.id_pedido}</td>
+                        <td><span class="badge ${status.class}">${status.text}</span></td>
+                        <td>${dataFormatada}</td>
+                        <td>${rastreamento.localizacao || '-'}</td>
+                        <td>${rastreamento.observacoes || '-'}</td>
+                    </tr>
+                `);
+                
+                tbody.append(tr);
+            });
+        }
+
+        function filtrarRastreamentos() {
+            const filtros = {
+                id_pedido: $('#filtroPedidoRastreamento').val(),
+                data: $('#filtroDataRastreamento').val()
+            };
+            carregarRastreamentos(filtros);
+        }
+    </script>
+</body>
+</html>
