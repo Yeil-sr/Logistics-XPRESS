@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nota Fiscal Modelo 1</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+        }
+        
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #000;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border: 1px solid #000;
+        }
+        
+        .nf-header {
+            text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #000;
+            padding-bottom: 10px;
+        }
+        
+        .nf-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .nf-number {
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+        
+        th, td {
+            border: 1px solid #000;
+            padding: 5px;
+            text-align: left;
+            vertical-align: top;
+        }
+        
+        th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+        
+        .section-title {
+            background-color: #e0e0e0;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .input-field {
+            width: 100%;
+            border: none;
+            outline: none;
+            padding: 2px;
+            background-color: transparent;
+            font-size: 11px;
+        }
+        
+        .two-columns {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .column {
+            width: 48%;
+        }
+        
+        .products-table th, .products-table td {
+            padding: 3px;
+            font-size: 10px;
+        }
+        
+        .signature-area {
+            margin-top: 20px;
+            border-top: 1px solid #000;
+            padding-top: 10px;
+        }
+        
+        .signature-line {
+            border-top: 1px solid #000;
+            margin-top: 30px;
+            text-align: center;
+            padding-top: 5px;
+        }
+        
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 8px 16px;
+            margin: 0 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        .logo-area {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .logo-placeholder {
+            display: inline-block;
+            width: 100px;
+            height: 50px;
+            border: 1px dashed #ccc;
+            line-height: 50px;
+            text-align: center;
+            color: #999;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+        }
+        
+        .checkbox-item input {
+            margin-right: 5px;
+        }
+        
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+            }
+            
+            .container {
+                box-shadow: none;
+                padding: 10px;
+                border: 1px solid #000;
+            }
+            
+            button {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-area">
+            <div class="logo-placeholder">LOGOTIPO</div>
+        </div>
+        
+        <div class="nf-header">
+            <div class="nf-title">NOTA FISCAL MODELO 1</div>
+            <div class="nf-number">NOTA FISCAL Nº <input type="text" class="input-field" id="numero-nota" style="width: 100px; text-align: center;"></div>
+        </div>
+        
+        <table>
+            <tr>
+                <th width="50%">EMITENTE</th>
+                <th width="25%">SAÍDA</th>
+                <th width="25%">ENTRADA</th>
+            </tr>
+            <tr>
+                <td>
+                    NOME / RAZÃO SOCIAL: <input type="text" class="input-field" id="nome-emitente"><br>
+                    ENDEREÇO: <input type="text" class="input-field" id="endereco-emitente"><br>
+                    BAIRRO/DISTRITO: <input type="text" class="input-field" id="bairro-emitente"><br>
+                    MUNICÍPIO: <input type="text" class="input-field" id="municipio-emitente" style="width: 60%">
+                    UF: <input type="text" class="input-field" id="uf-emitente" style="width: 20%"><br>
+                    FONE / FAX: <input type="text" class="input-field" id="fone-emitente" style="width: 40%">
+                    CEP: <input type="text" class="input-field" id="cep-emitente" style="width: 30%"><br>
+                    CNPJ: <input type="text" class="input-field" id="cnpj-emitente"><br>
+                    INSCRIÇÃO ESTADUAL: <input type="text" class="input-field" id="inscricao-estadual-emitente">
+                </td>
+                <td style="text-align: center;">
+                    <input type="checkbox" id="saida-checkbox">
+                </td>
+                <td style="text-align: center;">
+                    <input type="checkbox" id="entrada-checkbox">
+                </td>
+            </tr>
+        </table>
+        
+        <div class="two-columns">
+            <div class="column">
+                <table>
+                    <tr>
+                        <th>DESTINATÁRIO / REMETENTE</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            NOME / RAZÃO SOCIAL: <input type="text" class="input-field" id="nome-destinatario"><br>
+                            CNPJ / CPF: <input type="text" class="input-field" id="cnpj-destinatario"><br>
+                            ENDEREÇO: <input type="text" class="input-field" id="endereco-destinatario"><br>
+                            BAIRRO / DISTRITO: <input type="text" class="input-field" id="bairro-destinatario"><br>
+                            MUNICÍPIO: <input type="text" class="input-field" id="municipio-destinatario" style="width: 60%">
+                            UF: <input type="text" class="input-field" id="uf-destinatario" style="width: 20%"><br>
+                            CEP: <input type="text" class="input-field" id="cep-destinatario"><br>
+                            FONE / FAX: <input type="text" class="input-field" id="fone-destinatario"><br>
+                            INSCRIÇÃO ESTADUAL: <input type="text" class="input-field" id="inscricao-estadual-destinatario">
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="column">
+                <table>
+                    <tr>
+                        <th>NATUREZA DA OPERAÇÃO</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="text" class="input-field" id="natureza-operacao"><br>
+                            CFOP: <input type="text" class="input-field" id="cfop"><br>
+                            INSCRIÇÃO ESTADUAL DO SUBSTITUTO TRIBUTÁRIO: <input type="text" class="input-field" id="inscricao-substituto"><br>
+                            DATA LIMITE PARA EMISSÃO: <input type="date" class="input-field" id="data-limite"><br>
+                            DATA DA EMISSÃO: <input type="date" class="input-field" id="data-emissao"><br>
+                            DATA DA SAÍDA / ENTRADA: <input type="date" class="input-field" id="data-saida"><br>
+                            HORA DA SAÍDA: <input type="time" class="input-field" id="hora-saida"><br>
+                            FATURA: <input type="text" class="input-field" id="fatura">
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <table class="products-table">
+            <tr class="section-title">
+                <th width="8%">CÓDIGO</th>
+                <th width="25%">DESCRIÇÃO DOS PRODUTOS</th>
+                <th width="8%">CLASSIFICAÇÃO FISCAL</th>
+                <th width="8%">SITUAÇÃO TRIBUTÁRIA</th>
+                <th width="6%">UNIDADE</th>
+                <th width="8%">QUANTIDADE</th>
+                <th width="10%">VALOR UNITÁRIO</th>
+                <th width="10%">VALOR TOTAL</th>
+                <th width="8%">ALÍQUOTAS</th>
+                <th width="9%">VALOR DO IPI</th>
+            </tr>
+            <tr>
+                <td><input type="text" class="input-field"></td>
+                <td><input type="text" class="input-field"></td>
+                <td><input type="text" class="input-field"></td>
+                <td><input type="text" class="input-field"></td>
+                <td><input type="text" class="input-field"></td>
+                <td><input type="text" class="input-field"></td>
+                <td><input type="text" class="input-field"></td>
+                <td><input type="text" class="input-field"></td>
+                <td>
+                    ICMS: <input type="text" class="input-field" style="width: 100%; margin-bottom: 2px;"><br>
+                    IPI: <input type="text" class="input-field" style="width: 100%;">
+                </td>
+                <td><input type="text" class="input-field"></td>
+            </tr>
+            <!-- Linhas adicionais para produtos -->
+            <tr>
+                <td><input type="text" class="input-field"></td>
+                <td><input type="text" class="input-field"></td>
+                <td><input type="text" class="input-field"></td>
+                <td><input type="text" class="input-field"></td>
+                <td><input type="text" class="input-field"></td>
+                <td><input type="text" class="input-field"></td>
+                <td><input type="text" class="input-field"></td>
+                <td><input type="text" class="input-field"></td>
+                <td>
+                    ICMS: <input type="text" class="input-field" style="width: 100%; margin-bottom: 2px;"><br>
+                    IPI: <input type="text" class="input-field" style="width: 100%;">
+                </td>
+                <td><input type="text" class="input-field"></td>
+            </tr>
+        </table>
+        
+        <div class="two-columns">
+            <div class="column">
+                <table>
+                    <tr>
+                        <th>CÁLCULO DO IMPOSTO</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            BASE DE CÁLCULO DO ICMS: <input type="text" class="input-field" id="base-icms"><br>
+                            VALOR DO ICMS: <input type="text" class="input-field" id="valor-icms"><br>
+                            BASE DE CÁLCULO ICMS SUBSTITUIÇÃO: <input type="text" class="input-field" id="base-icms-st"><br>
+                            VALOR DO ICMS SUBSTITUIÇÃO: <input type="text" class="input-field" id="valor-icms-st"><br>
+                            VALOR TOTAL DOS PRODUTOS: <input type="text" class="input-field" id="valor-total-produtos"><br>
+                            VALOR DO FRETE: <input type="text" class="input-field" id="valor-frete"><br>
+                            VALOR DO SEGURO: <input type="text" class="input-field" id="valor-seguro"><br>
+                            OUTRAS DESPESAS ASSESSÓRIAS: <input type="text" class="input-field" id="outras-despesas"><br>
+                            VALOR TOTAL DO IPI: <input type="text" class="input-field" id="valor-total-ipi"><br>
+                            VALOR TOTAL DA NOTA: <input type="text" class="input-field" id="valor-total-nota">
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="column">
+                <table>
+                    <tr>
+                        <th>TRANSPORTADOR / VOLUMES TRANSPORTADOS</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            NOME / RAZÃO SOCIAL: <input type="text" class="input-field" id="nome-transportador"><br>
+                            FRETE POR CONTA:
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="radio" id="frete-emitente" name="frete-conta" value="emitente">
+                                    <label for="frete-emitente">1 EMITENTE</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="radio" id="frete-destinatario" name="frete-conta" value="destinatario">
+                                    <label for="frete-destinatario">2 DESTINATÁRIO</label>
+                                </div>
+                            </div>
+                            PLACA DO VEÍCULO: <input type="text" class="input-field" id="placa-veiculo" style="width: 40%">
+                            UF: <input type="text" class="input-field" id="uf-veiculo" style="width: 20%"><br>
+                            CGC / CPF: <input type="text" class="input-field" id="cgc-transportador"><br>
+                            ENDEREÇO: <input type="text" class="input-field" id="endereco-transportador"><br>
+                            MUNICÍPIO: <input type="text" class="input-field" id="municipio-transportador" style="width: 60%">
+                            UF: <input type="text" class="input-field" id="uf-transportador" style="width: 20%"><br>
+                            INSCRIÇÃO ESTADUAL: <input type="text" class="input-field" id="inscricao-transportador"><br>
+                            QUANTIDADE: <input type="text" class="input-field" id="quantidade-volumes"><br>
+                            ESPÉCIE: <input type="text" class="input-field" id="especie-volumes"><br>
+                            MARCA: <input type="text" class="input-field" id="marca-volumes"><br>
+                            NÚMERO: <input type="text" class="input-field" id="numero-volumes"><br>
+                            PESO BRUTO: <input type="text" class="input-field" id="peso-bruto"><br>
+                            PESO LÍQUIDO: <input type="text" class="input-field" id="peso-liquido">
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <div class="two-columns">
+            <div class="column">
+                <table>
+                    <tr>
+                        <th>DADOS ADICIONAIS</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>INFORMAÇÕES COMPLEMENTARES</strong><br>
+                            <textarea class="input-field" style="width: 100%; height: 80px;"></textarea>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="column">
+                <table>
+                    <tr>
+                        <th>RESERVADO AO FISCO</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            Nº DE CONTROLE DO FORMULÁRIO: <input type="text" class="input-field" id="numero-controle"><br>
+                            DADOS DA AIDF E DO IMPRESSOR: <input type="text" class="input-field" id="dados-aidf">
+                        </td>
+                    </tr>
+                </table>
+                
+                <table style="margin-top: 10px;">
+                    <tr>
+                        <td>
+                            RECEBEMOS DE (RAZÃO SOCIAL DO EMITENTE) OS PRODUTOS CONSTANTES DA NOTA FISCAL INDICADA AO LADO<br><br>
+                            NOTA FISCAL Nº <input type="text" class="input-field" id="numero-nota-recebimento" style="width: 80px;"><br>
+                            DATA DO RECEBIMENTO: <input type="date" class="input-field" id="data-recebimento"><br><br>
+                            IDENTIFICAÇÃO E ASSINATURA DO RECEBEDOR<br>
+                            <div class="signature-line" style="margin-top: 20px;"></div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <div class="button-container">
+            <button onclick="imprimirNotaFiscal()">Imprimir Nota Fiscal</button>
+            <button onclick="limparFormulario()">Limpar Formulário</button>
+            <button onclick="adicionarProduto()">Adicionar Produto</button>
+        </div>
+    </div>
+
+   <script>
+    // Listener para receber dados da nota fiscal via postMessage
+    window.addEventListener('message', (e) => {
+        if (!e.data || e.data.tipo !== 'POPULA_NFE') return;
+        
+        const nota = e.data.nota;
+        
+        // Preencher campos básicos da nota
+        if (document.getElementById('numero-nota')) {
+            document.getElementById('numero-nota').value = nota.numero || '';
+        }
+        
+        if (document.getElementById('data-emissao')) {
+            document.getElementById('data-emissao').value = nota.data_emissao ? 
+                new Date(nota.data_emissao).toISOString().split('T')[0] : '';
+        }
+        
+        // Preencher destinatário
+        if (nota.destinatario) {
+            if (document.getElementById('nome-destinatario')) {
+                document.getElementById('nome-destinatario').value = nota.destinatario.nome || '';
+            }
+            if (document.getElementById('cnpj-destinatario')) {
+                document.getElementById('cnpj-destinatario').value = nota.destinatario.cpf_cnpj || '';
+            }
+            if (document.getElementById('endereco-destinatario')) {
+                document.getElementById('endereco-destinatario').value = nota.destinatario.endereco || '';
+            }
+            if (document.getElementById('cep-destinatario')) {
+                document.getElementById('cep-destinatario').value = nota.destinatario.cep || '';
+            }
+            if (document.getElementById('municipio-destinatario')) {
+                document.getElementById('municipio-destinatario').value = nota.destinatario.cidade || '';
+            }
+            if (document.getElementById('uf-destinatario')) {
+                document.getElementById('uf-destinatario').value = nota.destinatario.uf || '';
+            }
+        }
+        
+        // Preencher itens da nota
+        const tbody = document.querySelector('.products-table tbody');
+        if (tbody && nota.itens && Array.isArray(nota.itens)) {
+            tbody.innerHTML = ''; // Limpar itens existentes
+            
+            nota.itens.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><input type="text" class="input-field" value="${item.codigo || ''}"></td>
+                    <td><input type="text" class="input-field" value="${item.descricao || ''}"></td>
+                    <td><input type="text" class="input-field" value="${item.classificacao_fiscal || ''}"></td>
+                    <td><input type="text" class="input-field" value="${item.situacao_tributaria || ''}"></td>
+                    <td><input type="text" class="input-field" value="${item.unidade || ''}"></td>
+                    <td><input type="text" class="input-field" value="${item.quantidade || ''}"></td>
+                    <td><input type="text" class="input-field" value="${item.valor_unitario ? 'R$ ' + item.valor_unitario.toFixed(2).replace('.', ',') : ''}"></td>
+                    <td><input type="text" class="input-field" value="${item.valor_total ? 'R$ ' + item.valor_total.toFixed(2).replace('.', ',') : ''}"></td>
+                    <td>
+                        ICMS: <input type="text" class="input-field" style="width: 100%; margin-bottom: 2px;" value="${item.icms || ''}"><br>
+                        IPI: <input type="text" class="input-field" style="width: 100%;" value="${item.ipi || ''}">
+                    </td>
+                    <td><input type="text" class="input-field" value="${item.valor_ipi ? 'R$ ' + item.valor_ipi.toFixed(2).replace('.', ',') : ''}"></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Preencher totais
+        if (nota.impostos) {
+            if (document.getElementById('valor-total-produtos')) {
+                document.getElementById('valor-total-produtos').value = nota.impostos.valor_total_produtos ? 
+                    'R$ ' + nota.impostos.valor_total_produtos.toFixed(2).replace('.', ',') : '';
+            }
+            if (document.getElementById('valor-frete')) {
+                document.getElementById('valor-frete').value = nota.impostos.frete ? 
+                    'R$ ' + nota.impostos.frete.toFixed(2).replace('.', ',') : '';
+            }
+            if (document.getElementById('valor-seguro')) {
+                document.getElementById('valor-seguro').value = nota.impostos.seguro ? 
+                    'R$ ' + nota.impostos.seguro.toFixed(2).replace('.', ',') : '';
+            }
+            if (document.getElementById('outras-despesas')) {
+                document.getElementById('outras-despesas').value = nota.impostos.outras_despesas ? 
+                    'R$ ' + nota.impostos.outras_despesas.toFixed(2).replace('.', ',') : '';
+            }
+            if (document.getElementById('valor-total-nota')) {
+                document.getElementById('valor-total-nota').value = nota.impostos.valor_total_nota ? 
+                    'R$ ' + nota.impostos.valor_total_nota.toFixed(2).replace('.', ',') : '';
+            }
+        }
+        
+        // Se solicitado, imprimir
+        if (e.data.imprimir) {
+            setTimeout(() => {
+                window.print();
+            }, 1000);
+        }
+    });
+
+    // Também permitir preenchimento via URL parameters (fallback)
+    window.addEventListener('load', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const notaData = urlParams.get('nota');
+        
+        if (notaData) {
+            try {
+                const nota = JSON.parse(decodeURIComponent(notaData));
+                const event = new MessageEvent('message', {
+                    data: { tipo: 'POPULA_NFE', nota: nota, imprimir: true }
+                });
+                window.dispatchEvent(event);
+            } catch (e) {
+                console.error('Erro ao processar dados da nota da URL:', e);
+            }
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:400,600|Open+Sans:400,600,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">    <style>
+        #mapaHubs { height: 500px; }
+        .hub-marker { width: 30px; height: 30px; border-radius: 50%; text-align: center; line-height: 30px; color: white; font-weight: bold; }
+        .hub-origem { background-color: #007bff; }
+        .hub-destino { background-color: #28a745; }
+        .info-hub { min-width: 200px; }
+    </style>
+</head>
+<body class="hold-transition sidebar-mini layout-fixed">
+    <div class="wrapper">
+      <!-- Navbar superior -->
+        <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+            <!-- Botão para toggle do menu lateral em mobile -->
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link sidebar-toggle" data-widget="pushmenu" href="#" role="button">
+                        <i class="fas fa-bars"></i>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Itens à direita -->
+            <ul class="navbar-nav ml-auto">
+                <!-- Menu do usuário -->
+                <li class="nav-item dropdown user-menu">
+                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                       
+                        <span class="d-none d-md-inline user-name" id="navbar-user-name">Nome do Usuário</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                        <!-- Header do menu do usuário -->
+                        <li class="user-header bg-primary">
+                           
+                            <p>
+                                <span id="dropdown-user-name">Nome do Usuário</span>
+                                <small id="dropdown-user-role">Cargo/Função</small>
+                            </p>
+                        </li>
+                        <!-- Menu Body -->
+                        <li class="user-body">
+                            <div class="row">
+                                <div class="col-4 text-center">
+                                    <a href="#">Perfil</a>
+                                </div>
+                                <div class="col-4 text-center">
+                                    <a href="#">Configurações</a>
+                                </div>
+                                <div class="col-4 text-center">
+                                    <a href="#">Ajuda</a>
+                                </div>
+                            </div>
+                        </li>
+                        <!-- Menu Footer -->
+                        <li class="user-footer">
+                            <a href="#" class="btn btn-default btn-flat">Perfil</a>
+                            <a href="#" class="btn btn-default btn-flat float-right" id="logout-btn">Sair</a>
+                        </li>
+                    </ul>
+                </li>
+                <!-- Controle de tela cheia (opcional) -->
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="fullscreen" href="#" role="button">
+                        <i class="fas fa-expand-arrows-alt"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <!-- Overlay para mobile quando o menu estiver aberto -->
+        <div class="sidebar-overlay"></div>
+
+        <!-- MENU LATERAL ATUALIZADO -->
+        <aside class="main-sidebar sidebar-dark-primary elevation-4">
+            <a href="/dashboard/gestao" class="brand-link">
+                <i class=""></i>
+                <span class="brand-text font-weight-light">Logistics XPRESS</span>
+            </a>
+
+            <div class="sidebar">
+                <nav class="mt-2">
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                        <!-- Menu Principal -->
+                        
+                        <!-- Gestão Audit -->
+                        <li class="nav-item has-treeview menu-open">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-inbox"></i>
+                                <p>
+                                   Gestão Audit
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/dashboard/gestao#tab-conferencias" class="nav-link" data-toggle="tab">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Conferência: LM Hub AT/TO</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/dashboard/gestao#tab-recebimentos" class="nav-link" data-toggle="tab">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Conferência Inbound</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        
+                        <!-- Transferência -->
+                        <li class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-exchange-alt"></i>
+                                <p>
+                                    Transferência
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview active">
+                                <li class="nav-item">
+                                    <a href="/dashboard/transferencia" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Gestão de Transferência</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/dashboard/hubs" class="nav-link active">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Gestão de Hubs</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        
+                        <!-- Estoque -->
+                        <li class="nav-item">
+                            <a href="/dashboard/estoque" class="nav-link">
+                                <i class="nav-icon fas fa-warehouse"></i>
+                                <p>Estoque</p>
+                            </a>
+                        </li>
+                        
+                        <!-- Pedidos -->
+                        <li class="nav-item">
+                            <a href="/dashboard/pedidos" class="nav-link">
+                                <i class="nav-icon fas fa-clipboard-list"></i>
+                                <p>Pedidos</p>
+                            </a>
+                        </li>
+                        
+                        <!-- Rotas -->
+                        <li class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-route"></i>
+                                <p>
+                                    Roterização
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/dashboard/rota" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Gestão de Rotas</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        
+                       <li class="nav-item">
+                            <a href="/dashboard/transporte" class="nav-link">
+                                <i class="nav-icon fas fa-truck"></i>
+                                <p>Transportes</p>
+                            </a>
+                        </li>
+                        
+                        <!-- Relatórios -->
+                        <li class="nav-item">
+                            <a href="/dashboard/relatorios" class="nav-link">
+                                <i class="nav-icon fas fa-chart-bar"></i>
+                                <p>Relatórios</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/dashboard/excecoes" class="nav-link">
+                                <i class="nav-icon fas fa-exclamation-triangle"></i>
+                                <p>Exceções</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/dashboard/diagrama" class="nav-link">
+                                <i class="nav-icon fas fa-project-diagram"></i>
+                                <p>Diagrama</p>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </aside>
+        
+        <div class="content-wrapper">
+            <section class="content-header">
+                <div class="container-fluid">
+                    <div class="row mb-2">
+                        <div class="col-sm-6">
+                            <h1>Mapa de Hubs</h1>
+                        </div>
+                        <div class="col-sm-6">
+                            <ol class="breadcrumb float-sm-right">
+                                <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                                <li class="breadcrumb-item active">Mapa de Hubs</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="content">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Visualização Geográfica</h3>
+                                    <div class="card-tools">
+                                        <button class="btn btn-sm btn-primary" id="atualizar-mapa">
+                                            <i class="fas fa-sync-alt"></i> Atualizar
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div id="mapaHubs"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Lista de Hubs</h3>
+                                </div>
+                                <div class="card-body p-0">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Código</th>
+                                                <th>Nome</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="listaHubs">
+                                            <!-- Preenchido por JS -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="card mt-3">
+                                <div class="card-header">
+                                    <h3 class="card-title">Estatísticas</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="info-box mb-3">
+                                        <span class="info-box-icon bg-danger"><i class="fas fa-warehouse"></i></span>
+                                        <div class="info-box-content">
+                                            <span class="info-box-text">Hubs Ativos</span>
+                                            <span class="info-box-number" id="total-hubs">0</span>
+                                        </div>
+                                    </div>
+                                    <div class="info-box mb-3">
+                                        <span class="info-box-icon bg-info"><i class="fas fa-truck"></i></span>
+                                        <div class="info-box-content">
+                                            <span class="info-box-text">Transferências Hoje</span>
+                                            <span class="info-box-number" id="transferencias-hoje">0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Modal Detalhes Hub -->
+        <div class="modal fade" id="modalHub" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary">
+                        <h5 class="modal-title">Detalhes do Hub</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Código do Hub</label>
+                                    <input type="text" class="form-control" id="hub-codigo" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label>Nome</label>
+                                    <input type="text" class="form-control" id="hub-nome" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label>Endereço</label>
+                                    <textarea class="form-control" id="hub-endereco" rows="3" readonly></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Capacidade</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="progress-group">
+                                            <div class="progress-group-header">
+                                                <span>Ocupação Atual</span>
+                                                <span class="ml-auto" id="ocupacao-atual">0%</span>
+                                            </div>
+                                            <div class="progress-group-bars">
+                                                <div class="progress progress-sm">
+                                                    <div class="progress-bar bg-danger" id="barra-ocupacao"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="progress-group">
+                                            <div class="progress-group-header">
+                                                <span>Pedidos em Estoque</span>
+                                                <span class="ml-auto" id="total-pedidos">0</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Transferências Recentes</h3>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Número TO</th>
+                                                    <th>Data</th>
+                                                    <th>Destino</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="transferencias-hub">
+                                                <!-- Preenchido por JS -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        let mapa;
+        let hubs = [];
+        
+        $(document).ready(function() {
+            // Inicializa o mapa
+            mapa = L.map('mapaHubs').setView([-15.788, -47.879], 4);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(mapa);
+            
+            // Carrega os hubs
+            carregarHubs();
+            
+            $('#atualizar-mapa').click(carregarHubs);
+        });
+        
+        async function carregarHubs() {
+            try {
+                const response = await fetch('/hubs/');
+                hubs = await response.json();
+                
+                // Limpa o mapa
+                mapa.eachLayer(layer => {
+                    if (layer instanceof L.Marker) {
+                        mapa.removeLayer(layer);
+                    }
+                });
+                
+                // Adiciona marcadores
+                hubs.forEach(hub => {
+                    if (hub.endereco && hub.endereco.latitude && hub.endereco.longitude) {
+                        const marker = L.marker([hub.endereco.latitude, hub.endereco.longitude], {
+                            icon: L.divIcon({
+                                className: 'hub-marker ' + (hub.entradas.length > 0 ? 'hub-destino' : 'hub-origem'),
+                                html: hub.codigo_hub.substring(0, 3)
+                            })
+                        }).addTo(mapa);
+                        
+                        marker.bindPopup(`
+                            <div class="info-hub">
+                                <h5>${hub.nome}</h5>
+                                <p><strong>Código:</strong> ${hub.codigo_hub}</p>
+                                <p><strong>Endereço:</strong> ${hub.endereco.rua}, ${hub.endereco.numero}</p>
+                                <button class="btn btn-sm btn-primary w-100" onclick="verDetalhesHub('${hub.id}')">
+                                    Ver Detalhes
+                                </button>
+                            </div>
+                        `);
+                    }
+                });
+                
+                // Atualiza lista
+                atualizarListaHubs();
+                
+            } catch (error) {
+                console.error('Erro ao carregar hubs:', error);
+            }
+        }
+        
+        function atualizarListaHubs() {
+            const tbody = $('#listaHubs');
+            tbody.empty();
+            
+            hubs.forEach(hub => {
+                const tr = $(`
+                    <tr onclick="verDetalhesHub('${hub.id}')" style="cursor:pointer;">
+                        <td>${hub.codigo_hub}</td>
+                        <td>${hub.nome}</td>
+                        <td><span class="badge badge-success">Ativo</span></td>
+                    </tr>
+                `);
+                tbody.append(tr);
+            });
+            
+            $('#total-hubs').text(hubs.length);
+        }
+        
+        async function verDetalhesHub(hubId) {
+            try {
+                const hub = await fetch(`/hub/${hubId}`).then(r => r.json());
+                const transferencias = await fetch(`/hub/${hubId}/transferencias`).then(r => r.json());
+                
+                // Preenche os detalhes
+                $('#hub-codigo').val(hub.codigo_hub);
+                $('#hub-nome').val(hub.nome);
+                $('#hub-endereco').val(`${hub.endereco.rua}, ${hub.endereco.numero} - ${hub.endereco.cidade}/${hub.endereco.estado}`);
+                
+                // Simula dados de capacidade (substituir por dados reais)
+                $('#ocupacao-atual').text('75%');
+                $('#barra-ocupacao').css('width', '75%');
+                $('#total-pedidos').text('1,245');
+                
+                // Preenche transferências
+                const tbody = $('#transferencias-hub');
+                tbody.empty();
+                
+                transferencias.forEach(t => {
+                    tbody.append(`
+                        <tr>
+                            <td>${t.numero_TO}</td>
+                            <td>${new Date(t.data_criacao).toLocaleDateString()}</td>
+                            <td>${t.destinoHub?.nome || '-'}</td>
+                            <td><span class="badge ${t.status === 'RECEBIDO' ? 'badge-success' : 'badge-warning'}">${t.status}</span></td>
+                        </tr>
+                    `);
+                });
+                
+                $('#modalHub').modal('show');
+                
+            } catch (error) {
+                console.error('Erro ao carregar detalhes do hub:', error);
+            }
+        }
+    </script>
+</body>
+</html>

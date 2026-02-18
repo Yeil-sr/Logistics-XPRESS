@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logistics XPRESS - Gestão de Exceções</title>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:400,600|Open+Sans:400,600,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+    <style>
+        :root {
+            --primary: #fa4700;
+            --secondary: #6c757d;
+            --success: #28a745;
+            --info: #17a2b8;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --light: #f8f9fa;
+            --dark: #343a40;
+        }
+        
+        .badge-baixa { background-color: var(--success); color: white; }
+        .badge-media { background-color: var(--warning); color: #212529; }
+        .badge-alta { background-color: var(--danger); color: white; }
+        .badge-critica { background-color: #721c24; color: white; }
+        
+        .badge-aberta { background-color: var(--danger); color: white; }
+        .badge-em_analise { background-color: var(--warning); color: #212529; }
+        .badge-aguardando_aprovacao { background-color: var(--info); color: white; }
+        .badge-resolvida { background-color: var(--success); color: white; }
+        .badge-escalonada { background-color: #6f42c1; color: white; }
+        .badge-cancelada { background-color: var(--secondary); color: white; }
+        
+        .card-dashboard {
+            transition: all 0.3s;
+            cursor: pointer;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .card-dashboard:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .table-actions {
+            white-space: nowrap;
+            width: 1%;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .action-buttons .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .excecao-item.reincidente {
+            background-color: rgba(220, 53, 69, 0.05);
+        }
+        
+        .timeline {
+            position: relative;
+            padding-left: 1rem;
+        }
+        .timeline-item {
+            position: relative;
+            padding-bottom: 1.5rem;
+            border-left: 1px solid #dee2e6;
+        }
+        .timeline-item:before {
+            content: "";
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            left: -6px;
+            border-radius: 50%;
+            background: #6c757d;
+            top: 5px;
+        }
+        
+        .priority-1 { border-left: 4px solid #dc3545; }
+        .priority-2 { border-left: 4px solid #ffc107; }
+        .priority-3 { border-left: 4px solid #28a745; }
+        
+        #loading-spinner {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            display: none;
+        }
+        
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .pagination-btn {
+            margin: 0 5px;
+            padding: 5px 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .pagination-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .nav-tabs .nav-link.active {
+            font-weight: bold;
+            border-bottom: 3px solid var(--primary);
+        }
+        
+        @media (max-width: 768px) {
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .table-responsive {
+                font-size: 0.875rem;
+            }
+            
+            .card-dashboard .inner {
+                padding: 10px !important;
+            }
+            
+            .card-dashboard .inner h3 {
+                font-size: 1.5rem;
+            }
+            
+            .modal-dialog {
+                margin: 0.5rem;
+            }
+        }
+        
+        .excecao-priority {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .priority-1 { background-color: #dc3545; }
+        .priority-2 { background-color: #ffc107; }
+        .priority-3 { background-color: #28a745; }
+        
+        .card-header-tabs {
+            margin-bottom: -1.25rem;
+        }
+        
+        /* Ajustes para seguir a referência */
+        .brand-text {
+            color: #fa5c00 !important;
+            text-transform: uppercase;
+        }
+        
+        .nav-link.active {
+            background-color: #fa4700 !important;
+            color: #f8f9fa !important;
+        }
+        
+        .nav-link.active i {
+            color: #f8f9fa !important;
+        }
+        
+        .nav-item.has-treeview.menu-open > .nav-link {
+            color: #f8f9fa;
+            background-color: #fa4700;
+        }
+        
+        .nav-item.has-treeview.menu-open > .nav-link i.right {
+            color: #f8f9fa !important;
+        }
+        
+        .nav-item > .nav-link:hover {
+            color: #fa4700;
+        }
+        
+        .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active, 
+        .sidebar-light-primary .nav-sidebar > .nav-item > .nav-link.active {
+            background-color: #fa4700;
+            color: #f8f9fa;
+        }
+        
+        .btn-primary {
+            background-color: #fa4700;
+            border-color: #e04200;
+        }
+        
+        .btn-primary:hover {
+            background-color: #e04200;
+            border-color: #c63900;
+        }
+        
+        .small-box {
+            color: white !important;
+        }
+        
+        .small-box .icon > i {
+            color: rgba(255,255,255,0.3) !important;
+        }
+        
+        .bg-primary {
+            background-color: #fa4700 !important;
+        }
+        
+        .page-item.active .page-link {
+            background-color: #fa4700;
+            border-color: #e04200;
+        }
+        
+        .dropdown-menu > li > a:hover {
+            background-color: #fa4700;
+            color: #f8f9fa;
+        }
+        
+        .btn-success {
+            background-color: #28a745;
+            border-color: #23923d;
+        }
+    </style>
+</head>
+<body class="hold-transition sidebar-mini layout-fixed">
+    <div class="wrapper">
+        <!-- Navbar superior -->
+        <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+            <!-- Botão para toggle do menu lateral em mobile -->
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link sidebar-toggle" data-widget="pushmenu" href="#" role="button">
+                        <i class="fas fa-bars"></i>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Itens à direita -->
+            <ul class="navbar-nav ml-auto">
+                <!-- Menu do usuário -->
+                <li class="nav-item dropdown user-menu">
+                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                        <span class="d-none d-md-inline user-name" id="navbar-user-name">Nome do Usuário</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                        <!-- Header do menu do usuário -->
+                        <li class="user-header bg-primary">
+                            <p>
+                                <span id="dropdown-user-name">Nome do Usuário</span>
+                                <small id="dropdown-user-role">Cargo/Função</small>
+                            </p>
+                        </li>
+                        <!-- Menu Body -->
+                        <li class="user-body">
+                            <div class="row">
+                                <div class="col-4 text-center">
+                                    <a href="#">Perfil</a>
+                                </div>
+                                <div class="col-4 text-center">
+                                    <a href="#">Configurações</a>
+                                </div>
+                                <div class="col-4 text-center">
+                                    <a href="#">Ajuda</a>
+                                </div>
+                            </div>
+                        </li>
+                        <!-- Menu Footer -->
+                        <li class="user-footer">
+                            <a href="#" class="btn btn-default btn-flat">Perfil</a>
+                            <a href="#" class="btn btn-default btn-flat float-right" id="logout-btn">Sair</a>
+                        </li>
+                    </ul>
+                </li>
+                <!-- Controle de tela cheia (opcional) -->
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="fullscreen" href="#" role="button">
+                        <i class="fas fa-expand-arrows-alt"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <!-- Overlay para mobile quando o menu estiver aberto -->
+        <div class="sidebar-overlay"></div>
+
+        <!-- MENU LATERAL ATUALIZADO -->
+        <aside class="main-sidebar sidebar-dark-primary elevation-4">
+            <a href="/dashboard/gestao" class="brand-link">
+                <i class=""></i>
+                <span class="brand-text font-weight-bolder" style=" color: #fa5c00; text-transform: uppercase; " > <i class="	fas fa-shipping-fast" style="margin-left: 1rem; margin-right: 0.5rem; color: #fa4700;"></i>Logistics XPRESS</span>
+            </a>
+
+            <div class="sidebar">
+                <nav class="mt-2">
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                        <!-- Menu Principal -->
+                        
+                        <!-- Gestão Audit -->
+                        <li class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-inbox"></i>
+                                <p>
+                                   Gestão Audit
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/dashboard/gestao#tab-conferencias" class="nav-link" data-toggle="tab">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Conferência: LM Hub AT/TO</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/dashboard/gestao#tab-recebimentos" class="nav-link" data-toggle="tab">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Conferência Inbound</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        
+                        <!-- Transferência -->
+                        <li class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-exchange-alt"></i>
+                                <p>
+                                    Transferência
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/dashboard/transferencia" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Gestão de Transferência</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/dashboard/hubs" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Gestão de Hubs</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        
+                        <!-- Estoque -->
+                        <li class="nav-item">
+                            <a href="/dashboard/estoque" class="nav-link">
+                                <i class="nav-icon fas fa-warehouse"></i>
+                                <p>Estoque</p>
+                            </a>
+                        </li>
+                        
+                        <!-- Pedidos -->
+                        <li class="nav-item">
+                            <a href="/dashboard/pedidos" class="nav-link">
+                                <i class="nav-icon fas fa-clipboard-list"></i>
+                                <p>Pedidos</p>
+                            </a>
+                        </li>
+                        
+                        <!-- Rotas -->
+                        <li class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-route"></i>
+                                <p>
+                                    Roterização
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/dashboard/rota" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Gestão de Rotas</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        
+                       <li class="nav-item">
+                            <a href="/dashboard/transporte" class="nav-link">
+                                <i class="nav-icon fas fa-truck"></i>
+                                <p>Transportes</p>
+                            </a>
+                        </li>
+                        
+                        <!-- Relatórios -->
+                        <li class="nav-item">
+                            <a href="/dashboard/relatorios" class="nav-link">
+                                <i class="nav-icon fas fa-chart-bar"></i>
+                                <p>Relatórios</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/dashboard/excecoes" class="nav-link active">
+                                <i class="nav-icon fas fa-exclamation-triangle"></i>
+                                <p>Exceções</p>
+                            </a>
+                        </li>
+                        <li class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-project-diagram"></i>
+                                <p>
+                                   Diagrama
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                     <a href="/dashboard/diagrama" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Diagrama</p>
+                                    </a>
+                                    <a href="/dashboard/diagrama-bpmn" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Diagrama BPMN</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- CONTEÚDO PRINCIPAL -->
+        <div class="content-wrapper">
+            <section class="content-header">
+                <div class="container-fluid">
+                    <div class="row mb-2">
+                        <div class="col-sm-6">
+                            <h1>Gestão de Exceções</h1>
+                        </div>
+                        <div class="col-sm-6">
+                            <ol class="breadcrumb float-sm-right">
+                                <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+                                <li class="breadcrumb-item active">Exceções</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="content">
+                <div class="container-fluid">
+                    <!-- Cards Resumo -->
+                    <div class="row">
+                        <div class="col-lg-3 col-6">
+                            <div class="small-box bg-danger card-dashboard" onclick="filtrarPorStatus('ABERTA')">
+                                <div class="inner">
+                                    <h3 id="total-abertas">12</h3>
+                                    <p>Abertas</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-3 col-6">
+                            <div class="small-box bg-warning card-dashboard" onclick="filtrarPorStatus('EM_ANALISE')">
+                                <div class="inner">
+                                    <h3 id="total-analise">8</h3>
+                                    <p>Em Análise</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-search"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-3 col-6">
+                            <div class="small-box bg-info card-dashboard" onclick="filtrarPorStatus('AGUARDANDO_APROVACAO')">
+                                <div class="inner">
+                                    <h3 id="total-aprovacao">5</h3>
+                                    <p>Aguardando Aprovação</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-3 col-6">
+                            <div class="small-box bg-success card-dashboard" onclick="filtrarPorStatus('RESOLVIDA')">
+                                <div class="inner">
+                                    <h3 id="total-resolvidas">23</h3>
+                                    <p>Resolvidas</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Busca Rápida -->
+                    <div class="row mb-3">
+                        <div class="col-md-8 offset-md-2">
+                            <div class="input-group">
+                                <input type="text" class="form-control form-control-lg" id="input-busca" 
+                                       placeholder="Digite número da ocorrência, título ou descrição...">
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary" onclick="buscarExcecoes()">
+                                        <i class="fas fa-search"></i> Buscar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filtros -->
+                    <div class="row mb-3">
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Tipo</label>
+                                <select class="form-control" id="filtro-tipo">
+                                    <option value="">Todos os tipos</option>
+                                    <option value="AVARIA">Avaria</option>
+                                    <option value="BACKLOG">Backlog</option>
+                                    <option value="PARCEL">Parcel</option>
+                                    <option value="NOSHOW">No Show</option>
+                                    <option value="EXTRAVIADO">Extravidado</option>
+                                    <option value="DIVERGENCIA">Divergência</option>
+                                    <option value="ATRASO">Atraso</option>
+                                    <option value="OUTROS">Outros</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Gravidade</label>
+                                <select class="form-control" id="filtro-gravidade">
+                                    <option value="">Todas</option>
+                                    <option value="BAIXA">Baixa</option>
+                                    <option value="MEDIA">Média</option>
+                                    <option value="ALTA">Alta</option>
+                                    <option value="CRITICA">Crítica</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Status</label>
+                                <select class="form-control" id="filtro-status">
+                                    <option value="">Todos</option>
+                                    <option value="ABERTA">Aberta</option>
+                                    <option value="EM_ANALISE">Em Análise</option>
+                                    <option value="AGUARDANDO_APROVACAO">Aguardando Aprovação</option>
+                                    <option value="RESOLVIDA">Resolvida</option>
+                                    <option value="ESCALONADA">Escalonada</option>
+                                    <option value="CANCELADA">Cancelada</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Data Inicial</label>
+                                <input type="date" class="form-control" id="filtro-data-inicio">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Data Final</label>
+                                <input type="date" class="form-control" id="filtro-data-fim">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Itens por página</label>
+                                <select class="form-control" id="filtro-limit" onchange="aplicarFiltros()">
+                                    <option value="10">10 itens</option>
+                                    <option value="25">25 itens</option>
+                                    <option value="50">50 itens</option>
+                                    <option value="100">100 itens</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabela Principal -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Lista de Exceções</h3>
+                                    <div class="card-tools">
+                                        <button class="btn btn-success" onclick="abrirModalNovaExcecao()">
+                                            <i class="fas fa-plus"></i> Nova Exceção
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body table-responsive p-0">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Nº Ocorrência</th>
+                                                <th>Título</th>
+                                                <th>Tipo</th>
+                                                <th>Gravidade</th>
+                                                <th>Status</th>
+                                                <th>Data Ocorrência</th>
+                                                <th>Responsável</th>
+                                                <th>Prazo</th>
+                                                <th>Impacto</th>
+                                                <th class="table-actions">Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tabela-excecoes">
+                                            <!-- Conteúdo dinâmico será inserido aqui -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="card-footer clearfix">
+                                    <div class="pagination-container" id="excecoes-pagination-container">
+                                        <!-- Paginação será inserida aqui -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- MODAL DETALHES EXCEÇÃO -->
+        <div class="modal fade" id="modal-detalhes" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary">
+                        <h5 class="modal-title">Detalhes da Exceção</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Número da Ocorrência</label>
+                                    <input type="text" class="form-control" id="detalhe-numero" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label>Título</label>
+                                    <input type="text" class="form-control" id="detalhe-titulo" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label>Tipo</label>
+                                    <input type="text" class="form-control" id="detalhe-tipo" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label>Gravidade</label>
+                                    <input type="text" class="form-control" id="detalhe-gravidade" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Status</label>
+                                    <input type="text" class="form-control" id="detalhe-status" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label>Data da Ocorrência</label>
+                                    <input type="text" class="form-control" id="detalhe-data-ocorrencia" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label>Prazo para Resolução</label>
+                                    <input type="text" class="form-control" id="detalhe-prazo" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label>Prioridade</label>
+                                    <input type="text" class="form-control" id="detalhe-prioridade" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Descricão</label>
+                                    <textarea class="form-control" id="detalhe-descricao" rows="3" readonly></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Informações de Origem</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label>Pedido Relacionado</label>
+                                            <input type="text" class="form-control" id="detalhe-pedido" readonly>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Transporte Relacionado</label>
+                                            <input type="text" class="form-control" id="detalhe-transporte" readonly>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Recebimento Relacionado</label>
+                                            <input type="text" class="form-control" id="detalhe-recebimento" readonly>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Setor de Origem</label>
+                                            <input type="text" class="form-control" id="detalhe-setor" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Informações Financeiras</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label>Impacto Financeiro</label>
+                                            <input type="text" class="form-control" id="detalhe-impacto" readonly>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Custo de Resolução</label>
+                                            <input type="text" class="form-control" id="detalhe-custo" readonly>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Reincidente</label>
+                                            <input type="text" class="form-control" id="detalhe-reincidente" readonly>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Número de Reincidências</label>
+                                            <input type="text" class="form-control" id="detalhe-reincidencias" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Responsáveis</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label>Criador</label>
+                                            <input type="text" class="form-control" id="detalhe-criador" readonly>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Responsável pela Resolução</label>
+                                            <input type="text" class="form-control" id="detalhe-responsavel" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Solução</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label>Solução Aplicada</label>
+                                            <textarea class="form-control" id="detalhe-solucao" rows="3" readonly></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Ações Tomadas</label>
+                                            <textarea class="form-control" id="detalhe-acoes" rows="3" readonly></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Data de Resolução</label>
+                                            <input type="text" class="form-control" id="detalhe-data-resolucao" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Histórico de Alterações</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="timeline" id="timeline-historico">
+                                            <!-- Conteúdo dinâmico será inserido aqui -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                        <button type="button" class="btn btn-primary" id="btn-editar">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL EDIÇÃO EXCEÇÃO -->
+        <div class="modal fade" id="modal-edicao" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary">
+                        <h5 class="modal-title">Editar Exceção - <span id="numero-ocorrencia-edicao"></span></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Abas de Navegação -->
+                        <ul class="nav nav-tabs mb-4" id="abasExcecao" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="dados-basicos-tab" data-toggle="tab" href="#dados-basicos" role="tab">Dados Básicos</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="relacionamentos-tab" data-toggle="tab" href="#relacionamentos" role="tab">Relacionamentos</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="financeiro-tab" data-toggle="tab" href="#financeiro" role="tab">Informações Financeiras</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="solucao-tab" data-toggle="tab" href="#solucao" role="tab">Solução e Acompanhamento</a>
+                            </li>
+                        </ul>
+                        
+                        <!-- Conteúdo das Abas -->
+                        <div class="tab-content" id="abasExcecaoContent">
+                            <!-- Aba Dados Básicos -->
+                            <div class="tab-pane fade show active" id="dados-basicos" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="excecao-titulo-edicao">Título *</label>
+                                            <input type="text" class="form-control" id="excecao-titulo-edicao" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="excecao-tipo-edicao">Tipo *</label>
+                                            <select class="form-control" id="excecao-tipo-edicao" required>
+                                                <option value="">Selecione o tipo</option>
+                                                <option value="AVARIA">Avaria</option>
+                                                <option value="BACKLOG">Backlog</option>
+                                                <option value="PARCEL">Parcel</option>
+                                                <option value="NOSHOW">No Show</option>
+                                                <option value="EXTRAVIADO">Extravidado</option>
+                                                <option value="DIVERGENCIA">Divergência</option>
+                                                <option value="ATRASO">Atraso</option>
+                                                <option value="OUTROS">Outros</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="excecao-gravidade-edicao">Gravidade *</label>
+                                            <select class="form-control" id="excecao-gravidade-edicao" required>
+                                                <option value="">Selecione a gravidade</option>
+                                                <option value="BAIXA">Baixa</option>
+                                                <option value="MEDIA">Média</option>
+                                                <option value="ALTA">Alta</option>
+                                                <option value="CRITICA">Crítica</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label for="excecao-descricao-edicao">Descrição *</label>
+                                            <textarea class="form-control" id="excecao-descricao-edicao" rows="3" required></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="excecao-status-edicao">Status *</label>
+                                            <select class="form-control" id="excecao-status-edicao" required>
+                                                <option value="">Selecione o status</option>
+                                                <option value="ABERTA">Aberta</option>
+                                                <option value="EM_ANALISE">Em Análise</option>
+                                                <option value="AGUARDANDO_APROVACAO">Aguardando Aprovação</option>
+                                                <option value="RESOLVIDA">Resolvida</option>
+                                                <option value="ESCALONADA">Escalonada</option>
+                                                <option value="CANCELADA">Cancelada</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="excecao-prioridade-edicao">Prioridade</label>
+                                            <select class="form-control" id="excecao-prioridade-edicao">
+                                                <option value="3">Baixa</option>
+                                                <option value="2">Média</option>
+                                                <option value="1">Alta</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="excecao-setor-edicao">Setor de Origem</label>
+                                            <input type="text" class="form-control" id="excecao-setor-edicao">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="excecao-data-edicao">Data da Ocorrência *</label>
+                                            <input type="datetime-local" class="form-control" id="excecao-data-edicao" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="excecao-prazo-edicao">Prazo para Resolução</label>
+                                            <input type="datetime-local" class="form-control" id="excecao-prazo-edicao">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="excecao-processo-edicao">Processo Afetado</label>
+                                            <input type="text" class="form-control" id="excecao-processo-edicao">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Aba Relacionamentos -->
+                            <div class="tab-pane fade" id="relacionamentos" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="excecao-pedido-edicao">Pedido Relacionado</label>
+                                            <select class="form-control" id="excecao-pedido-edicao">
+                                                <option value="">Nenhum</option>
+                                                <!-- Opções serão preenchidas dinamicamente -->
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="excecao-transporte-edicao">Transporte Relacionado</label>
+                                            <select class="form-control" id="excecao-transporte-edicao">
+                                                <option value="">Nenhum</option>
+                                                <!-- Opções serão preenchidas dinamicamente -->
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="excecao-recebimento-edicao">Recebimento Relacionado</label>
+                                            <select class="form-control" id="excecao-recebimento-edicao">
+                                                <option value="">Nenhum</option>
+                                                <!-- Opções serão preenchidas dinamicamente -->
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="excecao-criador-edicao">Criador</label>
+                                            <input type="text" class="form-control" id="excecao-criador-edicao" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="excecao-responsavel-edicao">Responsável pela Resolução</label>
+                                            <select class="form-control" id="excecao-responsavel-edicao">
+                                                <option value="">Selecionar responsável</option>
+                                                <!-- Opções serão preenchidas dinamicamente -->
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Aba Informações Financeiras -->
+                            <div class="tab-pane fade" id="financeiro" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="excecao-impacto-edicao">Impacto Financeiro (R$)</label>
+                                            <input type="number" step="0.01" class="form-control" id="excecao-impacto-edicao">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="excecao-custo-edicao">Custo de Resolução (R$)</label>
+                                            <input type="number" step="0.01" class="form-control" id="excecao-custo-edicao">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="excecao-reincidente-edicao">Reincidente</label>
+                                            <select class="form-control" id="excecao-reincidente-edicao">
+                                                <option value="false">Não</option>
+                                                <option value="true">Sim</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="excecao-reincidencias-edicao">Número de Reincidências</label>
+                                            <input type="number" class="form-control" id="excecao-reincidencias-edicao" value="0">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="form-group">
+                                            <label for="excecao-tags-edicao">Tags (separadas por vírgula)</label>
+                                            <input type="text" class="form-control" id="excecao-tags-edicao">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Aba Solução e Acompanhamento -->
+                            <div class="tab-pane fade" id="solucao" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="excecao-solucao-edicao">Solução Aplicada</label>
+                                            <textarea class="form-control" id="excecao-solucao-edicao" rows="3"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="excecao-acoes-edicao">Ações Tomadas</label>
+                                            <textarea class="form-control" id="excecao-acoes-edicao" rows="3"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="excecao-data-resolucao-edicao">Data de Resolução</label>
+                                            <input type="datetime-local" class="form-control" id="excecao-data-resolucao-edicao">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="form-group">
+                                            <label for="excecao-anexos-edicao">Anexos</label>
+                                            <div class="custom-file">
+                                                <input type="file" class="custom-file-input" id="excecao-anexos-edicao" multiple>
+                                                <label class="custom-file-label" for="excecao-anexos-edicao">Selecionar arquivos...</label>
+                                            </div>
+                                            <div id="lista-anexos" class="mt-2">
+                                                <!-- Lista de anexos será preenchida aqui -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" id="btn-salvar-excecao">Salvar Alterações</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL NOVA EXCEÇÃO -->
+        <div class="modal fade" id="modal-nova-excecao" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-success">
+                        <h5 class="modal-title">Registrar Nova Exceção</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="form-nova-excecao">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Tipo *</label>
+                                        <select class="form-control" id="excecao-tipo" required>
+                                            <option value="">Selecione o tipo</option>
+                                            <option value="AVARIA">Avaria</option>
+                                            <option value="BACKLOG">Backlog</option>
+                                            <option value="PARCEL">Parcel</option>
+                                            <option value="NOSHOW">No Show</option>
+                                            <option value="EXTRAVIADO">Extravidado</option>
+                                            <option value="DIVERGENCIA">Divergência</option>
+                                            <option value="ATRASO">Atraso</option>
+                                            <option value="OUTROS">Outros</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Gravidade *</label>
+                                        <select class="form-control" id="excecao-gravidade" required>
+                                            <option value="">Selecione a gravidade</option>
+                                            <option value="BAIXA">Baixa</option>
+                                            <option value="MEDIA">Média</option>
+                                            <option value="ALTA">Alta</option>
+                                            <option value="CRITICA">Crítica</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>Título *</label>
+                                        <input type="text" class="form-control" id="excecao-titulo" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>Descrição *</label>
+                                        <textarea class="form-control" id="excecao-descricao" rows="3" required></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Data da Ocorrência *</label>
+                                        <input type="datetime-local" class="form-control" id="excecao-data" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Prazo para Resolução</label>
+                                        <input type="datetime-local" class="form-control" id="excecao-prazo">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Pedido Relacionado</label>
+                                        <select class="form-control" id="excecao-pedido">
+                                            <option value="">Nenhum</option>
+                                            <!-- Opções serão preenchidas dinamicamente -->
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Transporte Relacionado</label>
+                                        <select class="form-control" id="excecao-transporte">
+                                            <option value="">Nenhum</option>
+                                            <!-- Opções serão preenchidas dinamicamente -->
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Recebimento Relacionado</label>
+                                        <select class="form-control" id="excecao-recebimento">
+                                            <option value="">Nenhum</option>
+                                            <!-- Opções serão preenchidas dinamicamente -->
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Impacto Financeiro (R$)</label>
+                                        <input type="number" step="0.01" class="form-control" id="excecao-impacto">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Setor de Origem</label>
+                                        <input type="text" class="form-control" id="excecao-setor">
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-success" id="btn-criar-excecao">Registrar Exceção</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loading-spinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Carregando...</span>
+            </div>
+        </div>
+        <div id="toast-container"></div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+    
+   <script src="/scripts/dashboard/excecoes.js" defer ></script>
+</body>
+</html>

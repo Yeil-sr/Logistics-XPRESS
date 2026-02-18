@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DANFE - Documento Auxiliar da NF-e</title>
+    <style>
+        /* Reset e configurações gerais */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 9pt;
+            line-height: 1.1;
+        }
+        
+        body {
+            background-color: white;
+            color: black;
+            padding: 0;
+            margin: 0;
+        }
+        
+        /* Container principal */
+        .danfe-container {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            padding: 5mm;
+            position: relative;
+            border: 1px solid #000;
+        }
+        
+        /* Seções principais */
+        .section {
+            margin-bottom: 3mm;
+            border: 1px solid #000;
+        }
+        
+        .section-title {
+            background-color: #f0f0f0;
+            font-weight: bold;
+            padding: 1mm 2mm;
+            border-bottom: 1px solid #000;
+        }
+        
+        .section-content {
+            padding: 1mm 2mm;
+        }
+        
+        /* Tabelas */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        
+        th, td {
+            border: 1px solid #000;
+            padding: 1mm;
+            vertical-align: top;
+            overflow: hidden;
+        }
+        
+        th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        /* Cabeçalho DANFE */
+        .danfe-header {
+            text-align: center;
+            margin-bottom: 3mm;
+            border: 1px solid #000;
+            padding: 2mm;
+        }
+        
+        .danfe-title {
+            font-size: 12pt;
+            font-weight: bold;
+            margin-bottom: 1mm;
+        }
+        
+        .danfe-subtitle {
+            font-size: 10pt;
+            margin-bottom: 2mm;
+        }
+        
+        /* Quadro de identificação */
+        .identificacao-nfe {
+            display: flex;
+            border: 1px solid #000;
+            margin-bottom: 3mm;
+        }
+        
+        .identificacao-left {
+            width: 70%;
+            border-right: 1px solid #000;
+            padding: 2mm;
+        }
+        
+        .identificacao-right {
+            width: 30%;
+            padding: 2mm;
+        }
+        
+        /* Chave de acesso */
+        .chave-acesso {
+            text-align: center;
+            font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 1px;
+            font-weight: bold;
+            margin: 2mm 0;
+            padding: 1mm;
+            border: 1px solid #000;
+        }
+        
+        /* Tabela de produtos */
+        .produtos-table th, .produtos-table td {
+            font-size: 8pt;
+            padding: 0.5mm;
+        }
+        
+        /* Campos de entrada */
+        .input-field {
+            border: none;
+            outline: none;
+            background: transparent;
+            width: 100%;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 9pt;
+        }
+        
+        /* Área de assinatura */
+        .assinatura {
+            margin-top: 5mm;
+            border-top: 1px solid #000;
+            padding-top: 2mm;
+            text-align: center;
+        }
+        
+        .linha-assinatura {
+            border-top: 1px solid #000;
+            width: 70%;
+            margin: 15mm auto 2mm;
+            padding-top: 1mm;
+        }
+        
+        /* QR Code */
+        .qrcode-container {
+            text-align: center;
+            margin: 2mm 0;
+        }
+        
+        .qrcode {
+            display: inline-block;
+            width: 40mm;
+            height: 40mm;
+            border: 1px solid #000;
+        }
+        
+        /* Rodapé */
+        .rodape {
+            text-align: center;
+            margin-top: 5mm;
+            font-size: 8pt;
+        }
+        
+        /* Controles de UI (ocultos na impressão) */
+        .ui-controls {
+            text-align: center;
+            margin: 5mm 0;
+        }
+        
+        button {
+            padding: 5px 10px;
+            margin: 0 5px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 10pt;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        /* Estilos para impressão */
+        @media print {
+            .ui-controls {
+                display: none;
+            }
+            
+            .danfe-container {
+                border: none;
+                padding: 0;
+                margin: 0;
+                width: 100%;
+                min-height: auto;
+            }
+            
+            body {
+                padding: 0;
+                margin: 0;
+            }
+            
+            /* Quebras de página */
+            .page-break {
+                page-break-after: always;
+            }
+            
+            /* Garantir que o cabeçalho da tabela se repita em quebras */
+            thead {
+                display: table-header-group;
+            }
+            
+            tfoot {
+                display: table-footer-group;
+            }
+        }
+        
+        /* Classes utilitárias */
+        .text-center {
+            text-align: center;
+        }
+        
+        .text-right {
+            text-align: right;
+        }
+        
+        .text-left {
+            text-align: left;
+        }
+        
+        .bold {
+            font-weight: bold;
+        }
+        
+        .inline-block {
+            display: inline-block;
+        }
+        
+        .width-20 {
+            width: 20%;
+        }
+        
+        .width-30 {
+            width: 30%;
+        }
+        
+        .width-40 {
+            width: 40%;
+        }
+        
+        .width-50 {
+            width: 50%;
+        }
+        
+        .width-60 {
+            width: 60%;
+        }
+        
+        .width-70 {
+            width: 70%;
+        }
+        
+        .width-80 {
+            width: 80%;
+        }
+        
+        .width-100 {
+            width: 100%;
+        }
+        
+        .mb-1 {
+            margin-bottom: 1mm;
+        }
+        
+        .mb-2 {
+            margin-bottom: 2mm;
+        }
+        
+        .mt-1 {
+            margin-top: 1mm;
+        }
+        
+        .mt-2 {
+            margin-top: 2mm;
+        }
+    </style>
+</head>
+<body>
+    <div class="danfe-container">
+        <!-- Cabeçalho DANFE -->
+        <div class="danfe-header">
+            <div class="danfe-title">DOCUMENTO AUXILIAR DA NOTA FISCAL ELETRÔNICA</div>
+            <div class="danfe-subtitle">DANFE</div>
+            
+            <div class="identificacao-nfe">
+                <div class="identificacao-left">
+                    <table>
+                        <tr>
+                            <td width="40%">
+                                <strong>NATUREZA DA OPERAÇÃO</strong><br>
+                                <input type="text" class="input-field" id="natureza-operacao" value="Venda Merc.Adiq.de Terc.Dest.a nao Contribuinte">
+                            </td>
+                            <td width="30%">
+                                <strong>INSCRIÇÃO ESTADUAL</strong><br>
+                                <input type="text" class="input-field" id="inscricao-estadual" value="083327908">
+                            </td>
+                            <td width="30%">
+                                <strong>INSCRIÇÃO ESTADUAL SUB. TRIBUTARIA</strong><br>
+                                <input type="text" class="input-field" id="inscricao-substituto" value="">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>CNPJ</strong><br>
+                                <input type="text" class="input-field" id="cnpj-emitente" value="03.619.767/0005-15">
+                            </td>
+                            <td colspan="2">
+                                <div class="checkbox-group">
+                                    <div class="checkbox-item inline-block">
+                                        <input type="radio" id="entrada" name="tipo-operacao" checked>
+                                        <label for="entrada">0 - Entrada</label>
+                                    </div>
+                                    <div class="checkbox-item inline-block" style="margin-left: 10mm;">
+                                        <input type="radio" id="saida" name="tipo-operacao">
+                                        <label for="saida">1 - Saída</label>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="identificacao-right">
+                    <table>
+                        <tr>
+                            <td><strong>Nº</strong></td>
+                            <td><input type="text" class="input-field text-center" id="numero-nota" value="000.048.204"></td>
+                        </tr>
+                        <tr>
+                            <td><strong>SÉRIE</strong></td>
+                            <td><input type="text" class="input-field text-center" id="serie-nota" value="1"></td>
+                        </tr>
+                        <tr>
+                            <td><strong>FOLHA</strong></td>
+                            <td><input type="text" class="input-field text-center" id="folha-nota" value="1 de 1"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="chave-acesso" id="chave-acesso">
+                3225 1103 6197 6700 0515 5500 0000 0482 0410 0190 8049
+            </div>
+            
+            <div class="protocolo text-center">
+                <strong>PROTOCOLO DE AUTORIZAÇÃO DE USO</strong><br>
+                <input type="text" class="input-field text-center" id="protocolo" value="2025-11-27T08:41:35-03:00">
+            </div>
+        </div>
+        
+        <!-- Dados do emitente -->
+        <div class="section">
+            <div class="section-title">EMITENTE</div>
+            <div class="section-content">
+                <table>
+                    <tr>
+                        <td width="60%">
+                            <strong>NOME/RAZÃO SOCIAL</strong><br>
+                            <input type="text" class="input-field" id="nome-emitente" value="Torino Informatica Ltda">
+                        </td>
+                        <td width="40%">
+                            <strong>MUNICÍPIO</strong><br>
+                            <input type="text" class="input-field" id="municipio-emitente" value="SERRA">
+                            <strong>UF</strong>
+                            <input type="text" class="input-field" id="uf-emitente" value="ES" style="width: 10mm;">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>ENDEREÇO</strong><br>
+                            <input type="text" class="input-field" id="endereco-emitente" value="Avenida 600, S/N">
+                        </td>
+                        <td>
+                            <strong>CEP</strong><br>
+                            <input type="text" class="input-field" id="cep-emitente" value="29161399">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>TEL/FAX</strong><br>
+                            <input type="text" class="input-field" id="fone-emitente" value="1532339320">
+                        </td>
+                        <td>
+                            <strong>INSCRIÇÃO ESTADUAL</strong><br>
+                            <input type="text" class="input-field" id="inscricao-estadual-emitente" value="083327908">
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Dados do destinatário -->
+        <div class="section">
+            <div class="section-title">DESTINATÁRIO/REMETENTE</div>
+            <div class="section-content">
+                <table>
+                    <tr>
+                        <td width="60%">
+                            <strong>NOME/RAZÃO SOCIAL</strong><br>
+                            <input type="text" class="input-field" id="nome-destinatario" value="COMANDO DE OPERACOES TERRESTRES">
+                        </td>
+                        <td width="40%">
+                            <strong>CNPJ/CPF</strong><br>
+                            <input type="text" class="input-field" id="cnpj-destinatario" value="00.394.452/0091-51">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>ENDEREÇO</strong><br>
+                            <input type="text" class="input-field" id="endereco-destinatario" value="Bairro SMU">
+                        </td>
+                        <td>
+                            <strong>CEP</strong><br>
+                            <input type="text" class="input-field" id="cep-destinatario" value="70630901">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>MUNICÍPIO</strong><br>
+                            <input type="text" class="input-field" id="municipio-destinatario" value="BRASILIA">
+                            <strong>UF</strong>
+                            <input type="text" class="input-field" id="uf-destinatario" value="DF" style="width: 10mm;">
+                        </td>
+                        <td>
+                            <strong>FONE/FAX</strong><br>
+                            <input type="text" class="input-field" id="fone-destinatario" value="">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>INSCRIÇÃO ESTADUAL</strong><br>
+                            <input type="text" class="input-field" id="inscricao-estadual-destinatario" value="">
+                        </td>
+                        <td>
+                            <strong>DATA DA EMISSÃO</strong><br>
+                            <input type="text" class="input-field" id="data-emissao" value="27/11/2025">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>DATA DE SAÍDA/ENTRADA</strong><br>
+                            <input type="text" class="input-field" id="data-saida" value="27/11/2025">
+                        </td>
+                        <td>
+                            <strong>HORA DE SAÍDA</strong><br>
+                            <input type="text" class="input-field" id="hora-saida" value="">
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <!-- FATURA -->
+        <div class="section">
+            <div class="section-title">FATURA</div>
+            <div class="section-content">
+                <table>
+                    <tr>
+                        <th width="15%">Número</th>
+                        <th width="25%">Data Vcto.</th>
+                        <th width="60%">Valor</th>
+                    </tr>
+                    <tr>
+                        <td><input type="text" class="input-field text-center" value="001"></td>
+                        <td><input type="text" class="input-field text-center" value="26/12/2025"></td>
+                        <td><input type="text" class="input-field text-right" value="2.380,00"></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Tabela de produtos -->
+        <div class="section">
+            <div class="section-title">DADOS DO PRODUTO/SERVIÇO</div>
+            <div class="section-content">
+                <table class="produtos-table">
+                    <thead>
+                        <tr>
+                            <th width="3%">CÓD. PROD.</th>
+                            <th width="35%">DESCRIÇÃO DO PRODUTO/SERVIÇO</th>
+                            <th width="5%">NCM/SH</th>
+                            <th width="3%">CST</th>
+                            <th width="4%">CFOP</th>
+                            <th width="4%">UNID.</th>
+                            <th width="6%">QUANT.</th>
+                            <th width="8%">VALOR UNITÁRIO</th>
+                            <th width="8%">VALOR TOTAL</th>
+                            <th width="8%">B.CALC. ICMS</th>
+                            <th width="6%">VALOR ICMS</th>
+                            <th width="6%">VALOR IPI</th>
+                            <th width="10%">ALÍQUOTAS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="text" class="input-field text-center" value="24E3QF/57"></td>
+                            <td>
+                                <input type="text" class="input-field" value="MONITOR AOC 23,8 PN: 24E3QF/57 PORTARIA INTERMINISTERIAL ME/MCTI N. 9.485 DE 06/08/2021MATERIAL ADQ. ENVISION IND PROD E LETRONICOS LTDA INSCR.EST. 241.207.126.114-CNPJ: 04.176.689/0007-56 NF">
+                            </td>
+                            <td><input type="text" class="input-field text-center" value="85285200"></td>
+                            <td><input type="text" class="input-field text-center" value="00"></td>
+                            <td><input type="text" class="input-field text-center" value="6108"></td>
+                            <td><input type="text" class="input-field text-center" value="PCS"></td>
+                            <td><input type="text" class="input-field text-center" value="4,0000"></td>
+                            <td><input type="text" class="input-field text-right" value="595,00000"></td>
+                            <td><input type="text" class="input-field text-right" value="2.380,00"></td>
+                            <td><input type="text" class="input-field text-right" value="2.380,00"></td>
+                            <td><input type="text" class="input-field text-right" value="285,60"></td>
+                            <td><input type="text" class="input-field text-right" value="0,00"></td>
+                            <td>
+                                ICMS: <input type="text" class="input-field" value="12,00" style="width: 15mm;"><br>
+                                IPI: <input type="text" class="input-field" value="0,00" style="width: 15mm;">
+                            </td>
+                        </tr>
+                        <!-- Linhas adicionais para mais produtos -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Cálculo do imposto e transportador -->
+        <div style="display: flex; margin-bottom: 3mm;">
+            <!-- Cálculo do imposto -->
+            <div class="section" style="width: 50%; margin-right: 1.5mm;">
+                <div class="section-title">CÁLCULO DO IMPOSTO</div>
+                <div class="section-content">
+                    <table>
+                        <tr>
+                            <td width="70%">BASE DE CÁLCULO DE ICMS</td>
+                            <td width="30%"><input type="text" class="input-field text-right" id="base-icms" value="2.380,00"></td>
+                        </tr>
+                        <tr>
+                            <td>VALOR DO ICMS</td>
+                            <td><input type="text" class="input-field text-right" id="valor-icms" value="285,60"></td>
+                        </tr>
+                        <tr>
+                            <td>BASE DE CALC. DE ICMS SUBSTITUIÇÃO</td>
+                            <td><input type="text" class="input-field text-right" id="base-icms-st" value="0,00"></td>
+                        </tr>
+                        <tr>
+                            <td>VALOR DO ICMS SUBSTITUIÇÃO</td>
+                            <td><input type="text" class="input-field text-right" id="valor-icms-st" value="0,00"></td>
+                        </tr>
+                        <tr>
+                            <td>VALOR TOTAL DOS PRODUTOS</td>
+                            <td><input type="text" class="input-field text-right" id="valor-total-produtos" value="2.380,00"></td>
+                        </tr>
+                        <tr>
+                            <td>VALOR DO FRETE</td>
+                            <td><input type="text" class="input-field text-right" id="valor-frete" value="0,00"></td>
+                        </tr>
+                        <tr>
+                            <td>VALOR DO SEGURO</td>
+                            <td><input type="text" class="input-field text-right" id="valor-seguro" value="0,00"></td>
+                        </tr>
+                        <tr>
+                            <td>DESCONTO</td>
+                            <td><input type="text" class="input-field text-right" id="desconto" value="0,00"></td>
+                        </tr>
+                        <tr>
+                            <td>OUTRAS DESPESAS ACESSÓRIAS</td>
+                            <td><input type="text" class="input-field text-right" id="outras-despesas" value="0,00"></td>
+                        </tr>
+                        <tr>
+                            <td>VALOR DO IPI</td>
+                            <td><input type="text" class="input-field text-right" id="valor-total-ipi" value="0,00"></td>
+                        </tr>
+                        <tr>
+                            <td><strong>VALOR TOTAL DA NOTA</strong></td>
+                            <td><input type="text" class="input-field text-right bold" id="valor-total-nota" value="2.380,00"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Transportador/Volumes transportados -->
+            <div class="section" style="width: 50%; margin-left: 1.5mm;">
+                <div class="section-title">TRANSPORTADOR/VOLUMES TRANSPORTADOS</div>
+                <div class="section-content">
+                    <table>
+                        <tr>
+                            <td width="40%">RAZÃO SOCIAL</td>
+                            <td width="60%"><input type="text" class="input-field" id="nome-transportador" value="T.A.T. LOGISTICA LTDA"></td>
+                        </tr>
+                        <tr>
+                            <td>FRETE POR CONTA</td>
+                            <td>
+                                <div class="checkbox-group">
+                                    <div class="checkbox-item inline-block">
+                                        <input type="radio" id="frete-emitente" name="frete-conta" checked>
+                                        <label for="frete-emitente">0 - Rem.</label>
+                                    </div>
+                                    <div class="checkbox-item inline-block" style="margin-left: 5mm;">
+                                        <input type="radio" id="frete-destinatario" name="frete-conta">
+                                        <label for="frete-destinatario">1 - Dest.</label>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>CNPJ/CPF</td>
+                            <td><input type="text" class="input-field" id="cgc-transportador" value="11.045.641/0001-89"></td>
+                        </tr>
+                        <tr>
+                            <td>ENDEREÇO</td>
+                            <td><input type="text" class="input-field" id="endereco-transportador" value="Rua QG EX - BL H - 2 ANDAR, SN"></td>
+                        </tr>
+                        <tr>
+                            <td>MUNICÍPIO</td>
+                            <td>
+                                <input type="text" class="input-field" id="municipio-transportador" value="SOROCABA" style="width: 60%">
+                                <strong>UF</strong>
+                                <input type="text" class="input-field" id="uf-transportador" value="SP" style="width: 10mm;">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>INSCRIÇÃO ESTADUAL</td>
+                            <td><input type="text" class="input-field" id="inscricao-transportador" value="669646493114"></td>
+                        </tr>
+                        <tr>
+                            <td>QUANTIDADE</td>
+                            <td><input type="text" class="input-field" id="quantidade-volumes" value="4"></td>
+                        </tr>
+                        <tr>
+                            <td>ESPÉCIE</td>
+                            <td><input type="text" class="input-field" id="especie-volumes" value="CAIXA"></td>
+                        </tr>
+                        <tr>
+                            <td>MARCA</td>
+                            <td><input type="text" class="input-field" id="marca-volumes" value=""></td>
+                        </tr>
+                        <tr>
+                            <td>NUMERAÇÃO</td>
+                            <td><input type="text" class="input-field" id="numero-volumes" value=""></td>
+                        </tr>
+                        <tr>
+                            <td>PESO BRUTO</td>
+                            <td><input type="text" class="input-field" id="peso-bruto" value="25,600"></td>
+                        </tr>
+                        <tr>
+                            <td>PESO LÍQUIDO</td>
+                            <td><input type="text" class="input-field" id="peso-liquido" value="25,600"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Dados adicionais e reservado ao fisco -->
+        <div style="display: flex; margin-bottom: 3mm;">
+            <!-- Dados adicionais -->
+            <div class="section" style="width: 60%; margin-right: 1.5mm;">
+                <div class="section-title">DADOS ADICIONAIS</div>
+                <div class="section-content">
+                    <strong>INFORMAÇÕES COMPLEMENTARES</strong><br>
+                    <textarea class="input-field" style="width: 100%; height: 25mm; resize: none;">EMPENHO 2025NE000481 - LOCAL DE ENTREGA: ALMOXARIFADO - ORDEM DE PAGAMENTO BANCO DO BRASIL AG: 2414-7 - C/C: 7105-6 - IN RFB N 1234 DE 11/01/2012 - D ARF 5,85% R$: 139,23 ;Item 1 - DESTINATARIO - RICMS/DF-LC 190/21 - CONV 153/15 - 20%, 12% OU 7%, ART 46, INCISO II, ALINEA D , ITEM 9, ANEXO I DO DE CRETO N 5.906/2006 E ITEM 14 DO CADERNO 2 DO ANEXO I DO RICMS/DF, PROD DO ANEXO VI DO RICMS/DF - DF816014 ; Total Aprox. de Tributos: R$750.41 (31,5 3%); Fonte: IBPT.</textarea>
+                </div>
+            </div>
+            
+            <!-- Reservado ao fisco e recebimento -->
+            <div class="section" style="width: 40%; margin-left: 1.5mm;">
+                <div class="section-title">RESERVADO AO FISCO</div>
+                <div class="section-content">
+                    <table>
+                        <tr>
+                            <td>INSCRIÇÃO MUNICIPAL</td>
+                            <td><input type="text" class="input-field" value="4675890"></td>
+                        </tr>
+                        <tr>
+                            <td>VALOR TOTAL DOS SERVIÇOS</td>
+                            <td><input type="text" class="input-field text-right" value="0,00"></td>
+                        </tr>
+                        <tr>
+                            <td>BASE DE CÁLCULO DO ISSQN</td>
+                            <td><input type="text" class="input-field text-right" value="0,00"></td>
+                        </tr>
+                        <tr>
+                            <td>VALOR DO ISSQN</td>
+                            <td><input type="text" class="input-field text-right" value="0,00"></td>
+                        </tr>
+                    </table>
+                    
+                    <div class="assinatura mt-2">
+                        RECEBEMOS DE <input type="text" class="input-field" value="Torino Informatica Ltda" style="width: 60%;"> OS PRODUTOS/SERVIÇOS CONSTANTES NA NOTA FISCAL INDICADA AO LADO<br><br>
+                        NOTA FISCAL Nº <input type="text" class="input-field text-center" value="000.048.204" style="width: 30mm;"><br>
+                        DATA DO RECEBIMENTO: <input type="text" class="input-field text-center" value="" style="width: 25mm;"><br><br>
+                        IDENTIFICAÇÃO E ASSINATURA DO RECEBEDOR<br>
+                        <div class="linha-assinatura"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- QR Code e instruções -->
+        <div class="section">
+            <div class="section-content text-center">
+                <div class="qrcode-container">
+                    <div class="qrcode">
+                        <!-- QR Code será gerado aqui -->
+                        <div style="padding: 5mm; text-align: center;">
+                            QR CODE<br>
+                            (Será gerado dinamicamente)
+                        </div>
+                    </div>
+                </div>
+                <div class="rodape">
+                    Consulta de autenticidade no portal nacional da NF-e<br>
+                    www.nfe.fazenda.gov.br/portal ou no site da Sefaz Autorizadora
+                </div>
+            </div>
+        </div>
+        
+        <!-- Controles de UI -->
+        <div class="ui-controls">
+            <button onclick="imprimirDanfe()">Imprimir DANFE</button>
+            <button onclick="limparFormulario()">Limpar Formulário</button>
+            <button onclick="adicionarProduto()">Adicionar Produto</button>
+        </div>
+    </div>
+
+    <script>
+        // Função para formatar a chave de acesso em blocos
+        function formatarChaveAcesso(chave) {
+            if (!chave) return '';
+            // Remove qualquer formatação existente
+            chave = chave.replace(/\s/g, '');
+            // Formata em blocos de 4 dígitos
+            return chave.replace(/(.{4})/g, '$1 ').trim();
+        }
+        
+        // Função para gerar QR Code (placeholder - implementação real depende da biblioteca)
+        function gerarQRCode(chave) {
+            // Esta é uma implementação simplificada
+            // Em produção, usar uma biblioteca como qrcode.js
+            console.log('Gerando QR Code para:', chave);
+            // Exemplo: document.getElementById('qrcode').innerHTML = '<img src="qrcode.png" alt="QR Code">';
+        }
+        
+        // Função para imprimir o DANFE
+        function imprimirDanfe() {
+            window.print();
+        }
+        
+        // Função para limpar o formulário
+        function limparFormulario() {
+            const inputs = document.querySelectorAll('.input-field');
+            inputs.forEach(input => {
+                input.value = '';
+            });
+        }
+        
+        // Função para adicionar nova linha de produto
+        function adicionarProduto() {
+            const tbody = document.querySelector('.produtos-table tbody');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td><input type="text" class="input-field text-center"></td>
+                <td><input type="text" class="input-field"></td>
+                <td><input type="text" class="input-field text-center"></td>
+                <td><input type="text" class="input-field text-center"></td>
+                <td><input type="text" class="input-field text-center"></td>
+                <td><input type="text" class="input-field text-center"></td>
+                <td><input type="text" class="input-field text-center"></td>
+                <td><input type="text" class="input-field text-right"></td>
+                <td><input type="text" class="input-field text-right"></td>
+                <td><input type="text" class="input-field text-right"></td>
+                <td><input type="text" class="input-field text-right"></td>
+                <td><input type="text" class="input-field text-right"></td>
+                <td>
+                    ICMS: <input type="text" class="input-field" style="width: 15mm;"><br>
+                    IPI: <input type="text" class="input-field" style="width: 15mm;">
+                </td>
+            `;
+            tbody.appendChild(newRow);
+        }
+        
+        // Função principal para renderizar o DANFE com dados da nota
+        function renderDanfe(dadosNota) {
+            // Preencher campos básicos
+            if (document.getElementById('numero-nota') && dadosNota.numero) {
+                document.getElementById('numero-nota').value = dadosNota.numero;
+            }
+            
+            if (document.getElementById('data-emissao') && dadosNota.data_emissao) {
+                document.getElementById('data-emissao').value = new Date(dadosNota.data_emissao).toLocaleDateString('pt-BR');
+            }
+            
+            if (document.getElementById('chave-acesso') && dadosNota.chave_acesso) {
+                document.getElementById('chave-acesso').textContent = formatarChaveAcesso(dadosNota.chave_acesso);
+                gerarQRCode(dadosNota.chave_acesso);
+            }
+            
+            // Preencher dados do emitente
+            if (dadosNota.emitente) {
+                const emitente = dadosNota.emitente;
+                if (document.getElementById('nome-emitente')) {
+                    document.getElementById('nome-emitente').value = emitente.nome || '';
+                }
+                if (document.getElementById('cnpj-emitente')) {
+                    document.getElementById('cnpj-emitente').value = emitente.cnpj || '';
+                }
+                if (document.getElementById('endereco-emitente')) {
+                    document.getElementById('endereco-emitente').value = emitente.endereco || '';
+                }
+                if (document.getElementById('municipio-emitente')) {
+                    document.getElementById('municipio-emitente').value = emitente.cidade || '';
+                }
+                if (document.getElementById('uf-emitente')) {
+                    document.getElementById('uf-emitente').value = emitente.uf || '';
+                }
+                if (document.getElementById('inscricao-estadual-emitente')) {
+                    document.getElementById('inscricao-estadual-emitente').value = emitente.inscricao_estadual || '';
+                }
+            }
+            
+            // Preencher dados do destinatário
+            if (dadosNota.destinatario) {
+                const destinatario = dadosNota.destinatario;
+                if (document.getElementById('nome-destinatario')) {
+                    document.getElementById('nome-destinatario').value = destinatario.nome || '';
+                }
+                if (document.getElementById('cnpj-destinatario')) {
+                    document.getElementById('cnpj-destinatario').value = destinatario.cpf_cnpj || '';
+                }
+                if (document.getElementById('endereco-destinatario')) {
+                    document.getElementById('endereco-destinatario').value = destinatario.endereco || '';
+                }
+                if (document.getElementById('municipio-destinatario')) {
+                    document.getElementById('municipio-destinatario').value = destinatario.cidade || '';
+                }
+                if (document.getElementById('uf-destinatario')) {
+                    document.getElementById('uf-destinatario').value = destinatario.uf || '';
+                }
+            }
+            
+            // Preencher itens da nota
+            const tbody = document.querySelector('.produtos-table tbody');
+            if (tbody && dadosNota.itens && Array.isArray(dadosNota.itens)) {
+                tbody.innerHTML = ''; // Limpar itens existentes
+                
+                dadosNota.itens.forEach((item, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><input type="text" class="input-field text-center" value="${item.codigo || ''}"></td>
+                        <td><input type="text" class="input-field" value="${item.descricao || ''}"></td>
+                        <td><input type="text" class="input-field text-center" value="${item.ncm || ''}"></td>
+                        <td><input type="text" class="input-field text-center" value="${item.cst || ''}"></td>
+                        <td><input type="text" class="input-field text-center" value="${item.cfop || ''}"></td>
+                        <td><input type="text" class="input-field text-center" value="${item.unidade || ''}"></td>
+                        <td><input type="text" class="input-field text-center" value="${item.quantidade || ''}"></td>
+                        <td><input type="text" class="input-field text-right" value="${item.valor_unitario ? 'R$ ' + item.valor_unitario.toFixed(2).replace('.', ',') : ''}"></td>
+                        <td><input type="text" class="input-field text-right" value="${item.valor_total ? 'R$ ' + item.valor_total.toFixed(2).replace('.', ',') : ''}"></td>
+                        <td><input type="text" class="input-field text-right" value="${item.base_calculo_icms ? 'R$ ' + item.base_calculo_icms.toFixed(2).replace('.', ',') : ''}"></td>
+                        <td><input type="text" class="input-field text-right" value="${item.valor_icms ? 'R$ ' + item.valor_icms.toFixed(2).replace('.', ',') : ''}"></td>
+                        <td><input type="text" class="input-field text-right" value="${item.valor_ipi ? 'R$ ' + item.valor_ipi.toFixed(2).replace('.', ',') : ''}"></td>
+                        <td>
+                            ICMS: <input type="text" class="input-field" style="width: 15mm;" value="${item.aliquota_icms || ''}"><br>
+                            IPI: <input type="text" class="input-field" style="width: 15mm;" value="${item.aliquota_ipi || ''}">
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+            
+            // Preencher totais
+            if (dadosNota.totais) {
+                const totais = dadosNota.totais;
+                if (document.getElementById('valor-total-produtos')) {
+                    document.getElementById('valor-total-produtos').value = totais.valor_total_produtos ? 
+                        'R$ ' + totais.valor_total_produtos.toFixed(2).replace('.', ',') : '';
+                }
+                if (document.getElementById('valor-total-nota')) {
+                    document.getElementById('valor-total-nota').value = totais.valor_total_nota ? 
+                        'R$ ' + totais.valor_total_nota.toFixed(2).replace('.', ',') : '';
+                }
+            }
+        }
+        
+        // Listener para receber dados da nota fiscal via postMessage (mantido da versão anterior)
+        window.addEventListener('message', (e) => {
+            if (!e.data || e.data.tipo !== 'POPULA_NFE') return;
+            
+            renderDanfe(e.data.nota);
+            
+            // Se solicitado, imprimir
+            if (e.data.imprimir) {
+                setTimeout(() => {
+                    window.print();
+                }, 1000);
+            }
+        });
+        
+        // Também permitir preenchimento via URL parameters (fallback)
+        window.addEventListener('load', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const notaData = urlParams.get('nota');
+            
+            if (notaData) {
+                try {
+                    const nota = JSON.parse(decodeURIComponent(notaData));
+                    renderDanfe(nota);
+                } catch (e) {
+                    console.error('Erro ao processar dados da nota da URL:', e);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

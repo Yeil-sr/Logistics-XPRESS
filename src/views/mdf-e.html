@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manifesto de Documentos Fiscais (MDF-e)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 18px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        th, td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+        
+        th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+        
+        .section-title {
+            background-color: #e0e0e0;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .input-field {
+            width: 100%;
+            border: none;
+            outline: none;
+            padding: 4px;
+            background-color: transparent;
+        }
+        
+        .signature-area {
+            margin-top: 30px;
+            border-top: 1px solid #000;
+            padding-top: 10px;
+        }
+        
+        .signature-line {
+            border-top: 1px solid #000;
+            margin-top: 40px;
+            text-align: center;
+            padding-top: 5px;
+        }
+        
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        .manifesto-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .manifesto-info {
+            flex: 1;
+        }
+        
+        .manifesto-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .status-active {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .status-inactive {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+            }
+            
+            .container {
+                box-shadow: none;
+                padding: 0;
+            }
+            
+            button {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="manifesto-header">
+            <div class="manifesto-info">
+                <h1>MANIFESTO DE DOCUMENTOS FISCAIS - MDF-e</h1>
+                <div class="manifesto-number" id="manifesto-numero">Nº: <span id="numero-manifesto">-</span></div>
+            </div>
+            <div class="manifesto-status">
+                <span class="status-badge status-active" id="status-manifesto">ATIVO</span>
+            </div>
+        </div>
+        
+        <!-- Dados do Manifesto -->
+        <table>
+            <tr>
+                <th width="25%">EMITENTE</th>
+                <th width="25%">ORIGEM</th>
+                <th width="25%">DESTINO</th>
+                <th width="25%">DADOS DO MANIFESTO</th>
+            </tr>
+            <tr>
+                <td>
+                    <strong>Logistics XPRESS</strong><br>
+                    CNPJ: 12.345.678/0001-90<br>
+                    Endereço: Rua Exemplo, 123<br>
+                    CEP: 01234-567
+                </td>
+                <td id="origem-info">
+                    <!-- Preenchido via JavaScript -->
+                </td>
+                <td id="destino-info">
+                    <!-- Preenchido via JavaScript -->
+                </td>
+                <td>
+                    Série: <span id="serie-manifesto">-</span><br>
+                    Data Emissão: <span id="data-emissao">-</span><br>
+                    Valor Total: <span id="valor-total">-</span><br>
+                    Qtd. Notas: <span id="quantidade-notas">-</span>
+                </td>
+            </tr>
+        </table>
+        
+        <!-- Notas Fiscais -->
+        <h3>NOTAS FISCAIS VINCULADAS</h3>
+        <table id="tabela-notas">
+            <thead>
+                <tr class="section-title">
+                    <th width="10%">Nº NOTA</th>
+                    <th width="10%">SÉRIE</th>
+                    <th width="15%">CHAVE NFE</th>
+                    <th width="15%">DATA EMISSÃO</th>
+                    <th width="20%">EMITENTE</th>
+                    <th width="15%">VALOR TOTAL</th>
+                    <th width="15%">STATUS</th>
+                </tr>
+            </thead>
+            <tbody id="corpo-notas">
+                <!-- Preenchido via JavaScript -->
+            </tbody>
+        </table>
+        
+        <!-- Pedidos -->
+        <h3>PEDIDOS VINCULADOS</h3>
+        <table id="tabela-pedidos">
+            <thead>
+                <tr class="section-title">
+                    <th width="15%">CÓDIGO PEDIDO</th>
+                    <th width="25%">CLIENTE</th>
+                    <th width="20%">CPF/CNPJ</th>
+                    <th width="25%">ENDEREÇO</th>
+                    <th width="15%">VALOR TOTAL</th>
+                </tr>
+            </thead>
+            <tbody id="corpo-pedidos">
+                <!-- Preenchido via JavaScript -->
+            </tbody>
+        </table>
+        
+        <!-- Observações -->
+        <div class="section">
+            <h3>OBSERVAÇÕES</h3>
+            <div id="observacoes-manifesto" class="input-field" style="border: 1px solid #ccc; padding: 10px; min-height: 80px;">
+                <!-- Preenchido via JavaScript -->
+            </div>
+        </div>
+        
+        <div class="signature-area">
+            <p>Declaro que as informações contidas neste manifesto são verdadeiras.</p>
+            
+            <div class="signature-line">
+                <input type="text" class="input-field" id="local-data" placeholder="Local e data" style="width: 100%; text-align: center; border: none;">
+            </div>
+            
+            <div class="signature-line">
+                Assinatura do Responsável
+            </div>
+        </div>
+        
+        <div class="button-container">
+            <button onclick="imprimirManifesto()">Imprimir Manifesto</button>
+            <button onclick="fecharJanela()">Fechar</button>
+        </div>
+    </div>
+
+    <script>
+        // Listener para receber dados do manifesto via postMessage
+        window.addEventListener('message', (e) => {
+            if (!e.data || e.data.tipo !== 'manifesto:load') return;
+            
+            const dados = e.data.dadosManifesto;
+            renderizarManifesto(dados);
+        });
+
+function renderizarManifesto(dados) {
+    const manifesto = dados.manifesto;
+    const notas = dados.notas || [];
+    const pedidos = dados.pedidos || [];
+    
+    console.log('Renderizando manifesto:', { manifesto, notas, pedidos });
+
+    // Preencher dados básicos do manifesto
+    document.getElementById('numero-manifesto').textContent = manifesto.numero_manifesto || manifesto.id || '-';
+    document.getElementById('serie-manifesto').textContent = manifesto.serie || '-';
+    document.getElementById('data-emissao').textContent = formatarData(manifesto.data_emissao);
+    document.getElementById('valor-total').textContent = formatarMoeda(manifesto.valor_total);
+    document.getElementById('quantidade-notas').textContent = manifesto.quantidade_notas || notas.length;
+
+    // Preencher origem e destino
+    const origemInfo = document.getElementById('origem-info');
+    const destinoInfo = document.getElementById('destino-info');
+    
+    if (manifesto.origem_hub) {
+        origemInfo.innerHTML = `
+            <strong>${manifesto.origem_hub.nome || 'Origem'}</strong><br>
+            ${manifesto.origem_hub.endereco || ''}<br>
+            ${manifesto.origem_hub.cidade || ''} - ${manifesto.origem_hub.estado || ''}
+        `;
+    } else if (manifesto.recebimento && manifesto.recebimento.origem_hub_nome) {
+        origemInfo.innerHTML = `
+            <strong>${manifesto.recebimento.origem_hub_nome}</strong><br>
+            Recebimento: ${manifesto.recebimento.numero_recebimento || ''}
+        `;
+    } else {
+        origemInfo.innerHTML = 'Origem não especificada';
+    }
+    
+    if (manifesto.destino_hub) {
+        destinoInfo.innerHTML = `
+            <strong>${manifesto.destino_hub.nome || 'Destino'}</strong><br>
+            ${manifesto.destino_hub.endereco || ''}<br>
+            ${manifesto.destino_hub.cidade || ''} - ${manifesto.destino_hub.estado || ''}
+        `;
+    } else if (manifesto.recebimento && manifesto.recebimento.destino_hub_nome) {
+        destinoInfo.innerHTML = `
+            <strong>${manifesto.recebimento.destino_hub_nome}</strong><br>
+            Recebimento: ${manifesto.recebimento.numero_recebimento || ''}
+        `;
+    } else {
+        destinoInfo.innerHTML = 'Destino não especificada';
+    }
+
+    // Preencher tabela de notas
+    const corpoNotas = document.getElementById('corpo-notas');
+    corpoNotas.innerHTML = '';
+
+    if (notas.length === 0) {
+        corpoNotas.innerHTML = '<tr><td colspan="7" class="text-center">Nenhuma nota fiscal vinculada</td></tr>';
+    } else {
+        notas.forEach(nota => {
+            // Calcular valor total se não estiver disponível
+            const valorTotal = nota.valor_total || 
+                (nota.itens ? nota.itens.reduce((total, item) => total + (item.quantidade * item.valor_unitario), 0) : 0);
+            
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${nota.numero || '-'}</td>
+                <td>${nota.serie || '-'}</td>
+                <td>${nota.chave_nfe || '-'}</td>
+                <td>${formatarData(nota.data_emissao)}</td>
+                <td>${nota.emitente || 'Logistics XPRESS'}</td>
+                <td>${formatarMoeda(valorTotal)}</td>
+                <td><span class="status-badge status-active">VINCULADA</span></td>
+            `;
+            corpoNotas.appendChild(tr);
+            
+            // Adicionar detalhes dos itens (opcional)
+            if (nota.itens && nota.itens.length > 0) {
+                const detalhesRow = document.createElement('tr');
+                detalhesRow.className = 'detalhes-nota';
+                detalhesRow.innerHTML = `
+                    <td colspan="7" style="padding: 10px; background-color: #f9f9f9;">
+                        <strong>Itens da Nota ${nota.numero}:</strong><br>
+                        <table style="width: 100%; margin-top: 5px;">
+                            <thead>
+                                <tr>
+                                    <th>Produto</th>
+                                    <th>Descrição</th>
+                                    <th>Quantidade</th>
+                                    <th>Valor Unitário</th>
+                                    <th>Valor Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${nota.itens.map(item => `
+                                    <tr>
+                                        <td>${item.produto?.nome || 'Produto não especificado'}</td>
+                                        <td>${item.descricao || '-'}</td>
+                                        <td>${item.quantidade || 0}</td>
+                                        <td>${formatarMoeda(item.valor_unitario)}</td>
+                                        <td>${formatarMoeda((item.quantidade || 0) * (item.valor_unitario || 0))}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </td>
+                `;
+                corpoNotas.appendChild(detalhesRow);
+            }
+        });
+    }
+
+    // Preencher tabela de pedidos
+    const corpoPedidos = document.getElementById('corpo-pedidos');
+    corpoPedidos.innerHTML = '';
+
+    if (pedidos.length === 0) {
+        corpoPedidos.innerHTML = '<tr><td colspan="5" class="text-center">Nenhum pedido vinculado</td></tr>';
+    } else {
+        pedidos.forEach(pedido => {
+            const cliente = pedido.cliente || {};
+            const endereco = pedido.endereco || {};
+            
+            // Formatar endereço completo
+            const enderecoCompleto = endereco.rua ? 
+                `${endereco.rua}, ${endereco.numero || 'S/N'} ${endereco.complemento ? ' - ' + endereco.complemento : ''}<br>
+                ${endereco.bairro ? endereco.bairro + ' - ' : ''}${endereco.cidade || ''} - ${endereco.estado || ''}<br>
+                CEP: ${endereco.cep || 'Não informado'}` : 
+                'Endereço não informado';
+            
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${pedido.codigo_pedido || pedido.id}</td>
+                <td>${cliente.nome || '-'}</td>
+                <td>${cliente.cpf || cliente.cnpj || '-'}</td>
+                <td>${enderecoCompleto}</td>
+                <td>${formatarMoeda(pedido.valor_total)}</td>
+            `;
+            corpoPedidos.appendChild(tr);
+            
+            // Adicionar detalhes dos itens do pedido (opcional)
+            if (pedido.itens && pedido.itens.length > 0) {
+                const detalhesRow = document.createElement('tr');
+                detalhesRow.className = 'detalhes-pedido';
+                detalhesRow.innerHTML = `
+                    <td colspan="5" style="padding: 10px; background-color: #f9f9f9;">
+                        <strong>Itens do Pedido ${pedido.codigo_pedido}:</strong><br>
+                        <table style="width: 100%; margin-top: 5px;">
+                            <thead>
+                                <tr>
+                                    <th>Produto</th>
+                                    <th>Descrição</th>
+                                    <th>Quantidade</th>
+                                    <th>Valor Unitário</th>
+                                    <th>Valor Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${pedido.itens.map(item => `
+                                    <tr>
+                                        <td>${item.produto?.nome || 'Produto não especificado'}</td>
+                                        <td>${item.descricao || item.produto?.descricao || '-'}</td>
+                                        <td>${item.quantidade || 0}</td>
+                                        <td>${formatarMoeda(item.valor_unitario)}</td>
+                                        <td>${formatarMoeda(item.valor_total || (item.quantidade * item.valor_unitario))}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </td>
+                `;
+                corpoPedidos.appendChild(detalhesRow);
+            }
+        });
+    }
+
+    // Preencher observações
+    const observacoes = document.getElementById('observacoes-manifesto');
+    observacoes.textContent = manifesto.observacoes || 'Nenhuma observação registrada.';
+
+    // Preencher data atual no local/data
+    document.getElementById('local-data').value = `${getLocalidade()} - ${formatarData(new Date())}`;
+    
+    // Adicionar funcionalidade de expandir/colapsar detalhes
+    adicionarFuncionalidadeDetalhes();
+}
+
+function adicionarFuncionalidadeDetalhes() {
+    // Adicionar eventos de clique para expandir/colapsar detalhes
+    document.querySelectorAll('tr').forEach(row => {
+        if (row.classList.contains('detalhes-nota') || row.classList.contains('detalhes-pedido')) {
+            row.style.display = 'none';
+        }
+    });
+    
+    document.querySelectorAll('tr:not(.detalhes-nota):not(.detalhes-pedido)').forEach(row => {
+        row.style.cursor = 'pointer';
+        row.addEventListener('click', function() {
+            const detalhes = this.nextElementSibling;
+            if (detalhes && (detalhes.classList.contains('detalhes-nota') || detalhes.classList.contains('detalhes-pedido'))) {
+                detalhes.style.display = detalhes.style.display === 'none' ? 'table-row' : 'none';
+            }
+        });
+    });
+}
+        
+        function formatarData(dataString) {
+            if (!dataString) return '-';
+            try {
+                const data = new Date(dataString);
+                return data.toLocaleDateString('pt-BR');
+            } catch (e) {
+                return dataString;
+            }
+        }
+
+        function formatarMoeda(valor) {
+            if (valor == null || isNaN(valor)) return 'R$ 0,00';
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(valor);
+        }
+
+        function getLocalidade() {
+            // Simulação - em produção poderia buscar da API
+            return 'São Paulo, SP';
+        }
+
+        function imprimirManifesto() {
+            window.print();
+        }
+
+        function fecharJanela() {
+            window.close();
+        }
+
+        // Preencher data atual automaticamente
+        document.getElementById('local-data').value = `${getLocalidade()} - ${formatarData(new Date())}`;
+    </script>
+</body>
+</html>

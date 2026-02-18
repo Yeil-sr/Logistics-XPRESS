@@ -1,0 +1,527 @@
+        :root {
+            --primary: #007bff;
+            --secondary: #6c757d;
+            --success: #28a745;
+            --info: #17a2b8;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --light: #f8f9fa;
+            --dark: #343a40;
+        }
+
+        .badge-pendente {
+            background-color: var(--warning);
+            color: #212529;
+        }
+
+        .badge-em-andamento {
+            background-color: var(--info);
+            color: white;
+        }
+
+        .badge-concluido {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .badge-excecao {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .badge-criado {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .badge-em-transporte {
+            background-color: #fd7e14;
+            color: white;
+        }
+
+        .badge-recebido {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .card-dashboard {
+            transition: all 0.3s;
+            cursor: pointer;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .card-dashboard:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-xs {
+            height: 7px;
+        }
+
+        .table-actions {
+            white-space: nowrap;
+            width: 1%;
+        }
+
+        .scanner-area {
+            border: 2px dashed var(--primary);
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .scanner-area:hover {
+            background-color: rgba(0, 123, 255, 0.05);
+            border-color: #0056b3;
+        }
+
+        .scanner-active {
+            background-color: rgba(0, 123, 255, 0.1);
+            border-style: solid;
+        }
+
+        .status-badge {
+            font-size: 0.85rem;
+            padding: 0.35em 0.65em;
+        }
+
+        .card-header .btn {
+            border-radius: 4px;
+        }
+
+        .nav-sidebar>.nav-item>.nav-link {
+            border-radius: 4px;
+            margin-bottom: 2px;
+        }
+
+        .nav-sidebar .menu-open>.nav-treeview {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 0 0 4px 4px;
+        }
+
+        .dashboard-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            flex: 1;
+            margin: 0 10px;
+        }
+
+        .stat-item:first-child {
+            margin-left: 0;
+        }
+
+        .stat-item:last-child {
+            margin-right: 0;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        .scanner-container {
+            width: 100%;
+            height: 300px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .scanner-placeholder {
+            text-align: center;
+            color: #6c757d;
+        }
+
+        .scanner-placeholder i {
+            font-size: 64px;
+            margin-bottom: 15px;
+        }
+
+        .conferencia-progress {
+            margin: 20px 0;
+        }
+
+        .pedido-item {
+            border-left: 4px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .pedido-item.recebido {
+            border-left-color: var(--success);
+            background-color: rgba(40, 167, 69, 0.05);
+        }
+
+        .pedido-item.pendente {
+            border-left-color: var(--warning);
+        }
+
+        .pedido-item.excecao {
+            border-left-color: var(--danger);
+            background-color: rgba(220, 53, 69, 0.05);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .action-buttons .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .tab-content {
+            padding: 20px 0;
+        }
+
+        .nav-tabs .nav-link {
+            border-radius: 5px 5px 0 0;
+        }
+
+        .operation-badge {
+            font-size: 0.7rem;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+
+        /* Estilos para a lista de pedidos no recebimento */
+        #lista-pedidos-rec {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        #lista-pedidos-rec .list-group-item {
+            padding: 0.5rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #contador-pedidos-rec {
+            font-size: 0.9rem;
+        }
+
+        .btn-remover-pedido {
+            padding: 0.15rem 0.4rem;
+            font-size: 0.7rem;
+        }
+
+        /* Novos estilos para validação em tempo real */
+        .validation-progress {
+            margin: 15px 0;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .progress-bar-animated {
+            transition: width 0.5s ease-in-out;
+        }
+
+        .real-time-feedback {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            display: none;
+        }
+
+        .feedback-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .feedback-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .percentage-badge {
+            font-size: 0.9rem;
+            padding: 0.3em 0.6em;
+            border-radius: 10px;
+        }
+
+        .status-updating {
+            opacity: 0.7;
+            position: relative;
+        }
+
+        .status-updating::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 0.25rem;
+        }
+
+        /* Estilos para a navbar personalizada */
+        .navbar-custom-menu {
+            margin-left: auto;
+        }
+
+        .navbar-custom-menu>.navbar-nav>li {
+            position: relative;
+        }
+
+        .user-menu {
+            padding: 8px 15px;
+        }
+
+        .user-image {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .user-name {
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        /* Estilos para responsividade do menu lateral */
+        @media (max-width: 767.98px) {
+            .main-sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+                position: fixed;
+                z-index: 1035;
+                height: 100% !important;
+            }
+
+            .sidebar-open .main-sidebar {
+                transform: translateX(0);
+            }
+
+            .content-wrapper {
+                margin-left: 0 !important;
+            }
+
+            .nav-sidebar .nav-link {
+                padding: 0.75rem 1rem;
+            }
+
+            .nav-sidebar .nav-treeview {
+                padding-left: 20px;
+            }
+
+            /* Overlay para quando o menu estiver aberto em mobile */
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 1030;
+            }
+
+            .sidebar-open .sidebar-overlay {
+                display: block;
+            }
+
+            .dashboard-stats {
+                flex-direction: column;
+            }
+
+            .stat-item {
+                margin: 5px 0;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
+        /* Melhorias para o menu em dispositivos móveis */
+        .navbar-expand .navbar-nav .dropdown-menu {
+            position: absolute;
+        }
+
+        /* Botão de toggle para mobile */
+        .sidebar-toggle {
+            cursor: pointer;
+        }
+
+        /* Estilos para botões de manifesto */
+        .btn-manifesto {
+            background-color: #6f42c1;
+            border-color: #6f42c1;
+            color: white;
+        }
+
+        .btn-manifesto:hover {
+            background-color: #5a2d91;
+            border-color: #5a2d91;
+            color: white;
+        }
+
+        .btn-generate-manifesto {
+            background-color: transparent;
+            border-color: #6f42c1;
+            color: #6f42c1;
+        }
+
+        .btn-generate-manifesto:hover {
+            background-color: #6f42c1;
+            color: white;
+        }
+
+        /* Estilos para botões de romaneio */
+        .btn-romaneio {
+            background-color: #20c997;
+            border-color: #20c997;
+            color: white;
+        }
+
+        .btn-romaneio:hover {
+            background-color: #199d76;
+            border-color: #199d76;
+            color: white;
+        }
+
+        .btn-generate-romaneio {
+            background-color: transparent;
+            border-color: #20c997;
+            color: #20c997;
+        }
+
+        .btn-generate-romaneio:hover {
+            background-color: #20c997;
+            color: white;
+        }
+
+        .info-group {
+            margin-bottom: 0.8rem;
+        }
+
+        .info-group label {
+            min-width: 100px;
+            margin-bottom: 0;
+        }
+
+        .info-value {
+            font-weight: 500;
+        }
+
+        .status-badge {
+            font-size: 0.85rem;
+            padding: 0.35em 0.65em;
+        }
+
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .table td {
+            vertical-align: middle;
+            font-size: 0.9rem;
+        }
+
+        .pagination {
+            margin-bottom: 0;
+        }
+
+        #form-novo-recebimento {
+            overflow-y: scroll !important;
+        }
+
+        /* Novos estilos para o modal de recebimento atualizado */
+        .json-preview {
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 300px;
+            overflow: auto;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .pedido-card {
+            border-left: 4px solid #fa4700;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .pedido-item-editor {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .manifesto-required {
+            border-left: 3px solid #dc3545;
+        }
+
+        /* Estilos para o autocomplete de hubs */
+        .sugestoes-container {
+            position: absolute;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            width: 100%;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .sugestao-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+
+        .sugestao-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .sugestao-item:last-child {
+            border-bottom: none;
+        }
+
+        .form-group {
+            position: relative;
+        }

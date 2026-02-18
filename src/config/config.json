@@ -1,0 +1,52 @@
+{
+  "development": {
+    "username": "root",
+    "password": "banco123",
+    "database": "logistica",
+    "host": "127.0.0.1",
+    "dialect": "mysql",
+    "logging": false
+  },
+  "test": {
+    "username": "root",
+    "password": "banco123",
+    "database": "logistica_test",
+    "host": "127.0.0.1",
+    "dialect": "mysql",
+    "logging": false
+  },
+  "sqlite": {
+    "dialect": "sqlite",
+    "storage": "./data/logistica.sqlite",
+    "logging": false
+  },
+  "production": {
+    "username": "root",
+    "password": "banco123",
+    "database": "logistica_prod",
+    "host": "127.0.0.1",
+    "dialect": "mysql",
+    "logging": false
+  },
+  "sqlite-memory": {
+    "dialect": "sqlite",
+    "storage": ":memory:",
+    "logging": false
+  },
+  "postgres-production": {
+    "dialect": "postgres",
+    "logging": false,
+    "dialectOptions": {
+      "ssl": {
+        "require": true,
+        "rejectUnauthorized": false
+      }
+    },
+    "pool": {
+      "max": 10,
+      "min": 0,
+      "acquire": 30000,
+      "idle": 10000
+    }
+  }
+}

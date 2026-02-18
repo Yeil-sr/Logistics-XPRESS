@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:400,600|Open+Sans:400,600,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+    <title>Logistics XPRESS - Expedição</title>
+    <link rel="stylesheet" href="expedicao.css">
+</head>
+
+<body class="hold-transition sidebar-mini layout-fixed">
+    <div class="wrapper">
+        <!-- Navbar superior -->
+        <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+            <!-- Botão para toggle do menu lateral em mobile -->
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link sidebar-toggle" data-widget="pushmenu" href="#" role="button">
+                        <i class="fas fa-bars"></i>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Itens à direita -->
+            <ul class="navbar-nav ml-auto">
+                <!-- Menu do usuário -->
+                <li class="nav-item dropdown user-menu">
+                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                        <span class="d-none d-md-inline user-name" id="navbar-user-name">Nome do Usuário</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                        <!-- Header do menu do usuário -->
+                        <li class="user-header bg-primary">
+                            <p>
+                                <span id="dropdown-user-name">Nome do Usuário</span>
+                                <small id="dropdown-user-role">Cargo/Função</small>
+                            </p>
+                        </li>
+                        <!-- Menu Body -->
+                        <li class="user-body">
+                            <div class="row">
+                                <div class="col-4 text-center">
+                                    <a href="#">Perfil</a>
+                                </div>
+                                <div class="col-4 text-center">
+                                    <a href="#">Configurações</a>
+                                </div>
+                                <div class="col-4 text-center">
+                                    <a href="#">Ajuda</a>
+                                </div>
+                            </div>
+                        </li>
+                        <!-- Menu Footer -->
+                        <li class="user-footer">
+                            <a href="#" class="btn btn-default btn-flat">Perfil</a>
+                            <a href="#" class="btn btn-default btn-flat float-right" id="logout-btn">Sair</a>
+                        </li>
+                    </ul>
+                </li>
+                <!-- Controle de tela cheia (opcional) -->
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="fullscreen" href="#" role="button">
+                        <i class="fas fa-expand-arrows-alt"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <!-- Overlay para mobile quando o menu estiver aberto -->
+        <div class="sidebar-overlay"></div>
+
+        <!-- MENU LATERAL -->
+        <aside class="main-sidebar sidebar-dark-primary elevation-4">
+            <a href="/dashboard/expedicao" class="brand-link">
+                <span class="brand-text font-weight-bolder" style=" color: #fa5c00; text-transform: uppercase; " > 
+                    <i class="fas fa-shipping-fast" style="margin-left: 1rem; margin-right: 0.5rem; color: #fa4700;"></i>Logistics XPRESS
+                </span>
+            </a>
+
+            <div class="sidebar">
+                <nav class="mt-2">
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                        <!-- Menu Principal -->
+                        <li class="nav-item">
+                            <a href="/dashboard/gestao" class="nav-link">
+                                <i class="nav-icon fas fa-inbox"></i>
+                                <p>Gestão Audit</p>
+                            </a>
+                        </li>
+                        
+                        <!-- Expedição -->
+                        <li class="nav-item has-treeview menu-open">
+                            <a href="#" class="nav-link active">
+                                <i class="nav-icon fas fa-shipping-fast"></i>
+                                <p>
+                                    Expedição
+                                    <i class="right fas fa-angle-left" style="color: #fa4700;"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="#tab-expedicao" class="nav-link active" data-toggle="tab">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Expedição</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#tab-separacao" class="nav-link" data-toggle="tab">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Separação</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#tab-coleta" class="nav-link" data-toggle="tab">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Coleta</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        
+                        <!-- Outros menus... -->
+                    </ul>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- CONTENT WRAPPER -->
+        <div class="content-wrapper">
+            <section class="content-header">
+                <div class="container-fluid py-3">
+                    <div class="row">
+                        <div class="col-sm-6"><h1>Expedição - Separação - Coleta</h1></div>
+                        <div class="col-sm-6 text-right"><small class="text-muted">Fluxo de saída de pedidos</small></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="content">
+                <div class="container-fluid">
+                    <!-- TABS -->
+                    <ul class="nav nav-tabs mb-3" id="mainTabs" role="tablist">
+                        <li class="nav-item"><a class="nav-link active" id="tab-link-expedicao" data-toggle="tab" href="#tab-expedicao" role="tab">Expedição</a></li>
+                        <li class="nav-item"><a class="nav-link" id="tab-link-separacao" data-toggle="tab" href="#tab-separacao" role="tab">Separação</a></li>
+                        <li class="nav-item"><a class="nav-link" id="tab-link-coleta" data-toggle="tab" href="#tab-coleta" role="tab">Coleta</a></li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <!-- ========== EXPEDIÇÃO ========== -->
+                        <div class="tab-pane fade show active" id="tab-expedicao" role="tabpanel">
+                            <!-- resumo -->
+                            <div class="row mb-3">
+                                <div class="col-6 col-md-3">
+                                    <div class="small-box bg-info card-dashboard" onclick="filtrarExpedicoesPorStatus('AGUARDANDO_SEPARACAO')">
+                                        <div class="inner p-3"><h3 id="total-pendente-exp">0</h3><p>Pendentes</p></div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="small-box bg-success card-dashboard" onclick="filtrarExpedicoesPorStatus('ENVIADO')">
+                                        <div class="inner p-3"><h3 id="total-enviado-exp">0</h3><p>Enviados</p></div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="small-box bg-warning card-dashboard" onclick="filtrarExpedicoesPorStatus('EM_TRANSITO')">
+                                        <div class="inner p-3"><h3 id="total-transito-exp">0</h3><p>Em Trânsito</p></div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="small-box bg-danger card-dashboard" onclick="filtrarExpedicoesPorStatus('EXCECAO')">
+                                        <div class="inner p-3"><h3 id="total-excecao-exp">0</h3><p>Exceções</p></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- filtros -->
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <div class="form-row align-items-end">
+                                        <div class="form-group col-md-2">
+                                            <label for="filtro-id-exp">ID</label>
+                                            <input id="filtro-id-exp" class="form-control" placeholder="EXP2023...">
+                                        </div>
+                                        <div class="form-group col-md-2">
+                                            <label for="filtro-status-exp">Status</label>
+                                            <select id="filtro-status-exp" class="form-control">
+                                                <option value="">Todos</option>
+                                                <option value="AGUARDANDO_SEPARACAO">Pendente</option>
+                                                <option value="ENVIADO">Enviado</option>
+                                                <option value="EM_TRANSITO">Em Trânsito</option>
+                                                <option value="EXCECAO">Exceção</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group col-md-2">
+                                            <label for="filtro-data-exp">Data</label>
+                                            <input id="filtro-data-exp" type="date" class="form-control">
+                                        </div>
+                                        <div class="form-group col-md-4 text-right">
+                                            <button id="btn-filtrar-exp" class="btn mr-2" style="background-color:#fa4700; color: #f8f9fa;">Aplicar filtros</button>
+                                            <button id="btn-limpar-filtros-exp" class="btn btn-outline-secondary">Limpar</button>
+                                            <button class="btn ml-2" style="background-color:#fa4700; color: #f8f9fa" onclick="abrirModalNovaExpedicao()"><i class="fas fa-plus"></i> Nova</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- tabela -->
+                            <div class="card">
+                                <div class="card-body table-responsive p-0">
+                                    <table class="table table-hover table-striped">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Pedido</th>
+                                                <th>Nota Fiscal</th>
+                                                <th>Código Rastreio</th>
+                                                <th>Data Envio</th>
+                                                <th>Status</th>
+                                                <th class="table-actions">Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tabela-expedicoes">
+                                            <!-- Dados serão preenchidos via JavaScript -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ========== SEPARAÇÃO ========== -->
+                        <div class="tab-pane fade" id="tab-separacao" role="tabpanel">
+                            <!-- resumo -->
+                            <div class="row mb-3">
+                                <div class="col-6 col-md-3">
+                                    <div class="small-box bg-info card-dashboard" onclick="filtrarSeparacoesPorStatus('PENDENTE')">
+                                        <div class="inner p-3"><h3 id="total-pendente-sep">0</h3><p>Pendentes</p></div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="small-box bg-success card-dashboard" onclick="filtrarSeparacoesPorStatus('SEPARADO')">
+                                        <div class="inner p-3"><h3 id="total-separado-sep">0</h3><p>Separados</p></div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="small-box bg-warning card-dashboard" onclick="filtrarSeparacoesPorStatus('AGUARDANDO_COLETA')">
+                                        <div class="inner p-3"><h3 id="total-aguardando-sep">0</h3><p>Aguardando Coleta</p></div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="small-box bg-danger card-dashboard" onclick="filtrarSeparacoesPorStatus('EXCECAO')">
+                                        <div class="inner p-3"><h3 id="total-excecao-sep">0</h3><p>Exceções</p></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- filtros -->
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <div class="form-row align-items-end">
+                                        <div class="form-group col-md-2">
+                                            <label for="filtro-id-sep">ID</label>
+                                            <input id="filtro-id-sep" class="form-control" placeholder="SEP2023...">
+                                        </div>
+                                        <div class="form-group col-md-2">
+                                            <label for="filtro-status-sep">Status</label>
+                                            <select id="filtro-status-sep" class="form-control">
+                                                <option value="">Todos</option>
+                                                <option value="PENDENTE">Pendente</option>
+                                                <option value="SEPARADO">Separado</option>
+                                                <option value="AGUARDANDO_COLETA">Aguardando Coleta</option>
+                                                <option value="EXCECAO">Exceção</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group col-md-2">
+                                            <label for="filtro-data-sep">Data</label>
+                                            <input id="filtro-data-sep" type="date" class="form-control">
+                                        </div>
+                                        <div class="form-group col-md-4 text-right">
+                                            <button id="btn-filtrar-sep" class="btn mr-2" style="background-color:#fa4700; color: #f8f9fa;">Aplicar filtros</button>
+                                            <button id="btn-limpar-filtros-sep" class="btn btn-outline-secondary">Limpar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- tabela -->
+                            <div class="card">
+                                <div class="card-body table-responsive p-0">
+                                    <table class="table table-hover table-striped">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Pedido</th>
+                                                <th>Data Separação</th>
+                                                <th>Corredor/Gaiola</th>
+                                                <th>Status</th>
+                                                <th class="table-actions">Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tabela-separacoes">
+                                            <!-- Dados serão preenchidos via JavaScript -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ========== COLETA ========== -->
+                        <div class="tab-pane fade" id="tab-coleta" role="tabpanel">
+                            <!-- resumo -->
+                            <div class="row mb-3">
+                                <div class="col-6 col-md-3">
+                                    <div class="small-box bg-info card-dashboard" onclick="filtrarColetasPorStatus('PENDENTE')">
+                                        <div class="inner p-3"><h3 id="total-pendente-col">0</h3><p>Pendentes</p></div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="small-box bg-success card-dashboard" onclick="filtrarColetasPorStatus('REALIZADA')">
+                                        <div class="inner p-3"><h3 id="total-realizada-col">0</h3><p>Realizadas</p></div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="small-box bg-warning card-dashboard" onclick="filtrarColetasPorStatus('EM_TRANSITO')">
+                                        <div class="inner p-3"><h3 id="total-transito-col">0</h3><p>Em Trânsito</p></div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="small-box bg-danger card-dashboard" onclick="filtrarColetasPorStatus('EXCECAO')">
+                                        <div class="inner p-3"><h3 id="total-excecao-col">0</h3><p>Exceções</p></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- filtros -->
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <div class="form-row align-items-end">
+                                        <div class="form-group col-md-2">
+                                            <label for="filtro-id-col">ID</label>
+                                            <input id="filtro-id-col" class="form-control" placeholder="COL2023...">
+                                        </div>
+                                        <div class="form-group col-md-2">
+                                            <label for="filtro-status-col">Status</label>
+                                            <select id="filtro-status-col" class="form-control">
+                                                <option value="">Todos</option>
+                                                <option value="PENDENTE">Pendente</option>
+                                                <option value="REALIZADA">Realizada</option>
+                                                <option value="EM_TRANSITO">Em Trânsito</option>
+                                                <option value="EXCECAO">Exceção</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group col-md-2">
+                                            <label for="filtro-data-col">Data</label>
+                                            <input id="filtro-data-col" type="date" class="form-control">
+                                        </div>
+                                        <div class="form-group col-md-4 text-right">
+                                            <button id="btn-filtrar-col" class="btn mr-2" style="background-color:#fa4700; color: #f8f9fa;">Aplicar filtros</button>
+                                            <button id="btn-limpar-filtros-col" class="btn btn-outline-secondary">Limpar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- tabela -->
+                            <div class="card">
+                                <div class="card-body table-responsive p-0">
+                                    <table class="table table-hover table-striped">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Pedido</th>
+                                                <th>Motorista</th>
+                                                <th>Agendamento</th>
+                                                <th>Data Coleta</th>
+                                                <th>Status</th>
+                                                <th class="table-actions">Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tabela-coletas">
+                                            <!-- Dados serão preenchidos via JavaScript -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <footer class="main-footer text-center py-2">
+            <strong>&copy; <span id="ano-curr"></span> Logistics XPRESS</strong>
+        </footer>
+    </div>
+
+    <!-- ========== MODAIS ========== -->
+
+    <!-- Modal Nova Expedição -->
+    <div class="modal fade" id="modal-nova-expedicao" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <form id="form-nova-expedicao" class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nova Expedição</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Pedido *</label>
+                                <select id="nova-expedicao-pedido" class="form-control" required>
+                                    <option value="">Selecione</option>
+                                    <!-- Opções preenchidas via JavaScript -->
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Nota Fiscal</label>
+                                <input id="nova-expedicao-nota-fiscal" class="form-control" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Código de Rastreio</label>
+                                <input id="nova-expedicao-codigo-rastreio" class="form-control" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Data de Envio</label>
+                                <input type="datetime-local" id="nova-expedicao-data-envio" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+                    <div class="alert" style="background-color:#fa4700; color: #f8f9fa;">
+                        <small>
+                            <i class="fas fa-info-circle"></i> 
+                            Ao criar uma expedição, o sistema automaticamente criará uma separação com status PENDENTE.
+                        </small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn" style="background-color:#fa4700; color:#f8f9fa">Criar Expedição</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Detalhes Expedição -->
+    <div class="modal fade" id="modal-detalhes-expedicao" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalhes da Expedição <span id="detalhe-id-exp-badge"></span></h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Pedido:</strong> <span id="detalhe-pedido-exp"></span><br>
+                            <strong>Nota Fiscal:</strong> <span id="detalhe-nota-fiscal-exp"></span><br>
+                            <strong>Data de Envio:</strong> <span id="detalhe-data-envio-exp"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Código de Rastreio:</strong> <span id="detalhe-codigo-rastreio-exp"></span><br>
+                            <strong>Status:</strong> <span id="detalhe-status-exp" class="badge"></span><br>
+                            <strong>Status Separação:</strong> <span id="detalhe-status-separacao-exp" class="badge"></span>
+                        </div>
+                    </div>
+
+                    <hr>
+                    <h6>Informações de Separação</h6>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Data Separação:</strong> <span id="detalhe-data-separacao-exp"></span><br>
+                            <strong>Corredor/Gaiola:</strong> <span id="detalhe-corredor-exp"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Status Coleta:</strong> <span id="detalhe-status-coleta-exp" class="badge"></span><br>
+                            <strong>Data Coleta:</strong> <span id="detalhe-data-coleta-exp"></span>
+                        </div>
+                    </div>
+
+                    <div id="detalhe-excecao-exp" class="alert alert-danger" style="display: none;">
+                        <strong>Exceção:</strong> <span id="detalhe-excecao-texto-exp"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                    <button id="btn-concluir-exp" class="btn btn-success" style="display: none;">Concluir Expedição</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Marcar como Separado -->
+    <div class="modal fade" id="modal-marcar-separado" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <form id="form-marcar-separado" class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Marcar como Separado</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="separacao-id">
+                    <div class="form-group">
+                        <label>Corredor/Gaiola</label>
+                        <input type="text" id="separacao-corredor" class="form-control" placeholder="Ex: A12">
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> 
+                        Ao marcar como separado, o sistema automaticamente criará uma coleta com status PENDENTE.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Confirmar</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Marcar como Coletado -->
+    <div class="modal fade" id="modal-marcar-coletado" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <form id="form-marcar-coletado" class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Marcar como Coletado</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="coleta-id">
+                    <div class="form-group">
+                        <label>Motorista</label>
+                        <select id="coleta-motorista" class="form-control" required>
+                            <option value="">Selecione</option>
+                            <!-- Opções preenchidas via JavaScript -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Data e Hora da Coleta</label>
+                        <input type="datetime-local" id="coleta-data" class="form-control" required>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> 
+                        Ao marcar como coletado, o pedido será atualizado para status EM_TRANSITO.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Confirmar</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Spinner -->
+    <div id="loading-spinner" class="d-none">
+        <div class="spinner-border text-primary" role="status" aria-hidden="true"></div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+    <script src="expedicao.js"></script>
+</body>
+</html>
