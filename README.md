@@ -42,6 +42,7 @@ src/
 
 * Node.js (versão 14+)
 * SQLite
+*PostgreSQL
 * Docker (opcional, para containerização)
 
 ## Instalação
@@ -86,7 +87,7 @@ npm start
 
 ## Banco de dados
 
-O projeto utiliza **SQLite** como banco de dados principal, configurado via Sequelize. As migrations são executadas automaticamente na inicialização.
+O projeto utiliza **PostgreSQL** como banco de dados principal, configurado via Sequelize. As migrations são executadas automaticamente na inicialização.
 
 **Principais entidades identificadas (inferido dos endpoints):**
 
