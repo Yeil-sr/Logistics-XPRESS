@@ -1318,82 +1318,92 @@ class ConferenciaServices extends Services {
    * Processa conferência INBOUND – entrada de estoque.
    * CORREÇÃO: agora utiliza o serviço de estoque para entrada, com validações robustas.
    */
-  async processarConferenciaInbound(conferencia, transaction) {
-    try {
-      console.debug(`[Conferencia] Processamento INBOUND da conferência ${conferencia.id}`);
+async processarConferenciaInbound(conferencia, transaction) {
+  try {
+    console.debug(`[Conferencia] Processamento INBOUND da conferência ${conferencia.id}`);
 
-      // Verifica se há transporte e hub de destino
-      if (!conferencia.transporte) {
-        throw new Error('Transporte não associado à conferência INBOUND');
-      }
-      if (!conferencia.transporte.hub_destino_id) {
-        throw new Error('Transporte da conferência INBOUND não possui hub de destino definido');
-      }
+    // CORREÇÃO: usar Transporte (PascalCase) em vez de transporte
+    const transporte = conferencia.Transporte;
 
-      for (const pedido of conferencia.pedidos) {
-        if (pedido.status === 'VALIDADO') {
-          pedido.status = 'EM_ESTOQUE';
-          await pedido.save({ transaction });
-
-          if (pedido.itens && pedido.itens.length > 0) {
-            for (const item of pedido.itens) {
-              // Validações adicionais
-              if (!item.produto_id) {
-                throw new Error(`Item do pedido ${pedido.id} não possui produto_id`);
-              }
-              if (!item.quantidade || item.quantidade <= 0) {
-                throw new Error(`Item do pedido ${pedido.id} possui quantidade inválida: ${item.quantidade}`);
-              }
-
-              console.debug(`[Conferencia] Processando entrada de estoque: produto ${item.produto_id}, hub ${conferencia.transporte.hub_destino_id}, quantidade ${item.quantidade}`);
-
-              // Utiliza o serviço de estoque para realizar a entrada
-              await estoqueService.entradaEstoque(
-                {
-                  produto_id: item.produto_id,
-                  hub_id: conferencia.transporte.hub_destino_id,
-                  quantidade: item.quantidade,
-                  usuario_id: conferencia.operador_id,
-                  localizacao: 'Área de Recebimento',
-                  referencia: `Conferência ${conferencia.id} - Pedido ${pedido.codigo_pedido || pedido.id}`
-                },
-                { transaction }
-              );
-            }
-          } else {
-            console.warn(`[Conferencia] Pedido ${pedido.id} não possui itens para entrada em estoque.`);
-          }
-
-          await db.Rastreamentos.create(
-            {
-              pedido_id: pedido.id,
-              status_atual: this._mapPedidoStatusToRastreamentoStatus('EM_ESTOQUE'),
-              data_status: new Date(),
-              localizacao: 'Estoque - ' + (conferencia.transporte?.hubDestino?.nome || 'Hub Principal')
-            },
-            { transaction }
-          );
-        }
-      }
-
-      const pedidosValidados = conferencia.pedidos.filter(p => p.status === 'VALIDADO').length;
-      let percentual = conferencia.total_pedidos_finais > 0
-        ? (pedidosValidados / conferencia.total_pedidos_finais) * 100
-        : 0;
-      percentual = Math.round(percentual * 100) / 100;
-
-      await conferencia.update(
-        {
-          pedidos_escaneados: pedidosValidados,
-          percentual_validacao: percentual
-        },
-        { transaction }
-      );
-    } catch (error) {
-      throw new Error(`Erro no processamento INBOUND: ${error.message}`);
+    if (!transporte) {
+      throw new Error('Transporte não associado à conferência INBOUND');
     }
-  }
 
+    // Se o hub de destino não estiver definido no transporte, tenta usar o do manifesto
+    let hubDestinoId = transporte.hub_destino_id;
+    if (!hubDestinoId && conferencia.manifesto?.destino_hub_id) {
+      hubDestinoId = conferencia.manifesto.destino_hub_id;
+      console.debug(`[Conferencia] hub_destino_id do transporte estava vazio; usando do manifesto: ${hubDestinoId}`);
+
+      // Atualiza o transporte com o hub encontrado (dentro da mesma transação)
+      await transporte.update({ hub_destino_id: hubDestinoId }, { transaction });
+    }
+
+    if (!hubDestinoId) {
+      throw new Error('Transporte da conferência INBOUND não possui hub de destino definido (nem no transporte, nem no manifesto)');
+    }
+
+    for (const pedido of conferencia.pedidos) {
+      if (pedido.status === 'VALIDADO') {
+        pedido.status = 'EM_ESTOQUE';
+        await pedido.save({ transaction });
+
+        if (pedido.itens && pedido.itens.length > 0) {
+          for (const item of pedido.itens) {
+            if (!item.produto_id) {
+              throw new Error(`Item do pedido ${pedido.id} não possui produto_id`);
+            }
+            if (!item.quantidade || item.quantidade <= 0) {
+              throw new Error(`Item do pedido ${pedido.id} possui quantidade inválida: ${item.quantidade}`);
+            }
+
+            console.debug(`[Conferencia] Processando entrada de estoque: produto ${item.produto_id}, hub ${hubDestinoId}, quantidade ${item.quantidade}`);
+
+            await estoqueService.entradaEstoque(
+              {
+                produto_id: item.produto_id,
+                hub_id: hubDestinoId,
+                quantidade: item.quantidade,
+                usuario_id: conferencia.operador_id,
+                localizacao: 'Área de Recebimento',
+                referencia: `Conferência ${conferencia.id} - Pedido ${pedido.codigo_pedido || pedido.id}`
+              },
+              { transaction }
+            );
+          }
+        } else {
+          console.warn(`[Conferencia] Pedido ${pedido.id} não possui itens para entrada em estoque.`);
+        }
+
+        await db.Rastreamentos.create(
+          {
+            pedido_id: pedido.id,
+            status_atual: this._mapPedidoStatusToRastreamentoStatus('EM_ESTOQUE'),
+            data_status: new Date(),
+            localizacao: 'Estoque - ' + (transporte.hubDestino?.nome || 'Hub Principal')
+          },
+          { transaction }
+        );
+      }
+    }
+
+    const pedidosValidados = conferencia.pedidos.filter(p => p.status === 'VALIDADO').length;
+    let percentual = conferencia.total_pedidos_finais > 0
+      ? (pedidosValidados / conferencia.total_pedidos_finais) * 100
+      : 0;
+    percentual = Math.round(percentual * 100) / 100;
+
+    await conferencia.update(
+      {
+        pedidos_escaneados: pedidosValidados,
+        percentual_validacao: percentual
+      },
+      { transaction }
+    );
+  } catch (error) {
+    throw new Error(`Erro no processamento INBOUND: ${error.message}`);
+  }
+}
   async processarConferenciaOutbound(conferencia, transaction) {
     try {
       console.debug(`[Conferencia] Processamento OUTBOUND da conferência ${conferencia.id}`);
